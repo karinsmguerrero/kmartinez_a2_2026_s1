@@ -12,7 +12,8 @@
 extern std::vector<std::string> textChunk; // Vector to hold a chunk of text for processing
 extern std::unordered_map<std::string, int> localHashMap; // Local hash map for counting words in a chunk
 
-void processTextChunk(const std::vector<std::string>& chunk); // Function prototype for processing a chunk of text
-void printWordCounts(); // Function prototype for printing the word counts
+void processTextChunk(const std::vector<std::string>& chunk); 
+void printWordCounts(); 
+std::string removePunctuation(const std::string& word); 
 
 #endif // MAPPER_H
