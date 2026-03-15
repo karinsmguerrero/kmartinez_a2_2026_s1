@@ -1,17 +1,19 @@
 #include <iostream>
 #include <string>
-#include "FileManagement/FileReader.cpp"
+#include <algorithm> // for std::min
+#include "FileManagement/FileReader.h"
 
 int main() {
-    FileReader reader;
+    // Functional approach: Read file and get lines
+    auto lines = readFileToLines("Assets/output.txt");
 
-    // Test reading from a file
-    if (reader.readFile("Assets/output.txt")) {
-        std::cout << "File read successfully. Number of lines: " << reader.getLineCount() << std::endl;
+    if (!lines.empty()) {
+        std::cout << "File read successfully. Number of lines: " << getLineCount(lines) << std::endl;
 
         // Print first 5 lines
-        for (size_t i = 0; i < std::min(size_t(5), reader.getLineCount()); ++i) {
-            std::cout << "Line " << i + 1 << ": " << reader.getLine(i) << std::endl;
+        size_t numToPrint = std::min(size_t(5), getLineCount(lines));
+        for (size_t i = 0; i < numToPrint; ++i) {
+            std::cout << "Line " << i + 1 << ": " << getLine(lines, i) << std::endl;
         }
     } else {
         std::cout << "Failed to read file." << std::endl;

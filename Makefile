@@ -13,14 +13,14 @@ all: $(TARGET)
 # Regla para compilar el ejecutable
 $(TARGET): $(SRC)
 	@echo "Compiling $(TARGET)..."
-	@g++ -o $(TARGET) $(SRC) $(CXXFLAGS)
+	@g++ -o build/$(TARGET) $(SRC) $(CXXFLAGS)
 
 # Regla para ejecutar el programa
 run: $(TARGET)
 	@echo "Running $(TARGET)..."
-	@./$(TARGET)
+	@./build/$(TARGET)
 
 # Limpieza de archivos generados
 clean:
 	@echo "Cleaning up..."
-	@rm -f $(TARGET) *.o
+	@rm -f build/$(TARGET) *.o
