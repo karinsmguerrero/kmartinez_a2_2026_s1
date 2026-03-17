@@ -13,7 +13,7 @@ std::vector<std::string> getTopKWords(const std::unordered_map<std::string, int>
     std::sort(wordCountVector.begin(), wordCountVector.end(),
               [](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b)
               {
-                  return b.second < a.second; // Sort in descending order
+                  return b.second < a.second;
               });
 
     // Extract the top k words
@@ -37,7 +37,6 @@ void printTopKWordCounts(std::vector<std::string> topKWords, const std::unordere
 
 int main()
 {
-    // List of files to process
     std::vector<std::string> files = {
         "Assets/conde.txt",
         "Assets/fellowship.txt",
@@ -60,18 +59,20 @@ int main()
 
     if (modelChoice == 1)
     {
-        std::cout << "------------ Running Serial Model on " << files[fileChoice - 1] << "------------ "<< std::endl;
+        std::cout << "------------ Running Serial Model on " << files[fileChoice - 1] << "------------ " << std::endl;
         std::unordered_map<std::string, int> globalHashMap;
-        runMapReduce_serial(files[fileChoice - 1], globalHashMap); // Process the selected file
-        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap); // Print the top 10 most common words
+        runMapReduce_serial(files[fileChoice - 1], globalHashMap);           
+        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap); 
     }
     else if (modelChoice == 2)
     {
-        std::cout << "------------ Running Parallel Fine Grained Model on " << files[fileChoice - 1] << "------------ "<< std::endl;
-        std::unordered_map<std::string, int> globalHashMap; // Global hash map to store combined word counts from all threads
-        runMapReduce_fine(files[fileChoice - 1], 4, globalHashMap); // Process the selected file with 4 threads
-        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap); // Print the top 10 most common words
-    } 
+        std::cout << "------------ Running Parallel Fine Grained Model on " << files[fileChoice - 1] << "------------ " << std::endl;
+        std::unordered_map<std::string, int> globalHashMap;         
+        runMapReduce_fine(files[fileChoice - 1], 4, globalHashMap);
+        //std::cout << "Global hash map size: " << globalHashMap.size() << std::endl;
+        std::cout << "Top 10 most common words in " << files[fileChoice - 1] << ":" << std::endl;
+        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap); 
+    }
     else
     {
         std::cout << "Invalid choice. Exiting." << std::endl;
@@ -80,4 +81,3 @@ int main()
 
     return 0;
 }
-
