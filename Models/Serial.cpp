@@ -4,7 +4,7 @@
 #include "../FileManagement/FileReader.h"
 #include "../Mapper/Mapper.h"
 
-int runMapReduce(std::string filePath)
+int runMapReduce_serial(std::string filePath, std::unordered_map<std::string, int> &localHashMap)
 {
     // Read file and get lines
     std::vector<std::string> lines = readFileToLines(filePath);
@@ -13,7 +13,7 @@ int runMapReduce(std::string filePath)
     {
         std::cout << "File read successfully. Number of lines: " << getLineCount(lines) << std::endl;
         // Map phase: Process the chunk of text and count word occurrences
-        processTextChunk(lines);    
+        processTextChunk(lines, localHashMap);    
         // Reduce phase: Add the word counts
         // No Reduce phase needed for the serial model since we are directly updating the localHashMap in the Mapper
         // and there are no other threads to combine results with.
