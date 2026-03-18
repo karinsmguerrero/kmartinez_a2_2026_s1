@@ -58,10 +58,9 @@ void *map(void *arg)
 
         if (!done)
         {
-            // model stalls with a 20% chance to simulate memory latency
+            // model stalls
             if (rand() % 100 < 20)
             {
-                //printf("[cycle %02d] Thread %d: STALL (Memory Wait/NOP) on Line[%d] \n", global_clock, tid, current_line);
             }
             else
             {
@@ -69,7 +68,7 @@ void *map(void *arg)
                 if (current_line + 4 > end_line)
                 {
                     chunk.insert(chunk.end(), data->text_chunk.begin() + current_line, data->text_chunk.begin() + end_line);
-                    current_line = end_line; 
+                    current_line = end_line;
                 }
                 else
                 {
@@ -86,7 +85,6 @@ void *map(void *arg)
                     printf("[cycle %02d] Thread %d: FINISHED WORKLOAD\n", global_clock, tid);
                 }
             }
-            // Conde 46382 lines
         }
         else
         {
@@ -112,9 +110,9 @@ int runMapReduce_fine(std::string filePath, int numThreads, std::unordered_map<s
 
         size_t totalLines = getLineCount(lines);
         pthread_t threads[numThreads];
-        int chunkSize = (getLineCount(lines) + numThreads - 1) / numThreads; 
+        int chunkSize = (getLineCount(lines) + numThreads - 1) / numThreads;
         total_threads = numThreads;
-        ThreadData **threadDataArray = new ThreadData*[numThreads]; // Array to hold thread data pointers
+        ThreadData **threadDataArray = new ThreadData *[numThreads]; // Array to hold thread data pointers
 
         // Map phase: Process the chunk of text and count word occurrences
         for (int i = 0; i < numThreads; ++i)

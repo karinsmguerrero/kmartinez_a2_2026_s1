@@ -61,7 +61,8 @@ int main()
     {
         std::cout << "------------ Running Serial Model on " << files[fileChoice - 1] << "------------ " << std::endl;
         std::unordered_map<std::string, int> globalHashMap;
-        runMapReduce_serial(files[fileChoice - 1], globalHashMap);           
+        runMapReduce_serial(files[fileChoice - 1], globalHashMap);   
+        std::cout << "Top 10 most common words in " << files[fileChoice - 1] << ":" << std::endl;        
         printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap); 
     }
     else if (modelChoice == 2)
