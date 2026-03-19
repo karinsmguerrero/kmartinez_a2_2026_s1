@@ -4,8 +4,7 @@
 #include <pthread.h>
 #include "../FileManagement/FileReader.h"
 #include "../Mapper/Mapper.h"
-#include <random>
-#include <thread>
+#include "Stalls.cpp"
 
 int global_clock = 0;
 int threads_completed = 0; // Tracks when all work is done
@@ -20,19 +19,8 @@ struct ThreadData
     std::vector<std::string> text_chunk;
     int chunk_size;
     std::unordered_map<std::string, int> localHashMap;
+    int seed; 
 };
-
-/* Thread-safe function that returns a random number between min and max (inclusive).
-This function takes ~142% the time that calling rand() would take. For this extra
-cost you get a better uniform distribution and thread-safety. */
-int intRand(const int &min, const int &max)
-{
-    static thread_local std::mt19937 *generator = nullptr;
-    if (!generator)
-        generator = new std::mt19937(clock() + std::hash<std::thread::id>()(std::this_thread::get_id()));
-    std::uniform_int_distribution<int> distribution(min, max);
-    return distribution(*generator);
-}
 
 void *map(void *arg)
 {
@@ -42,8 +30,8 @@ void *map(void *arg)
     int end_line = data->text_chunk.size();
     int current_line = start_line;
     bool done = false;
-    bool isStalled = false;
-    int stalls = 0;
+    bool is_stalled = false;
+    int total_stalls = 0;
 
     // Loop until ALL threads have finished their workloads
     while (1)
@@ -74,24 +62,24 @@ void *map(void *arg)
 
         if (!done)
         {
-            if (isStalled)
+            if (is_stalled)
             {
                 // Costly stall has completed, now we can proceed with work
-                isStalled = false; 
+                is_stalled = false; 
             }
             else
             {
                 // model stalls
-                int randValue = intRand(1, 100);
+                int randValue = intRand(1, 100, data->seed);
                 if (randValue < 10) // models costly stall 10% of the time
                 {
-                    isStalled = true;
-                    stalls++;
+                    is_stalled = true;
+                    total_stalls++;
                 }
                 else if (randValue > 80) // models a short stall 20% of the time
                 {
-                    isStalled = false;
-                    stalls++;
+                    is_stalled = false;
+                    total_stalls++;
                 }
                 else
                 {
@@ -114,7 +102,7 @@ void *map(void *arg)
                         done = true;
                         threads_completed++;
                         printf("[cycle %02d] Thread %d: FINISHED WORKLOAD\n", global_clock, tid);
-                        printf("[cycle %02d] Thread %d: Total stalls = %d\n", global_clock, tid, stalls);
+                        printf("[cycle %02d] Thread %d: Total stalls = %d\n", global_clock, tid, total_stalls);
                     }
                 }
             }
@@ -132,7 +120,7 @@ void *map(void *arg)
     return NULL;
 }
 
-int runMapReduce_fine(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap)
+int runMapReduce_fine(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
 {
     // Read file and get lines
     std::vector<std::string> lines = readFileToLines(filePath);
@@ -159,6 +147,7 @@ int runMapReduce_fine(std::string filePath, int numThreads, std::unordered_map<s
             data->text_chunk = textChunk;
             data->chunk_size = chunkSize;
             data->localHashMap = std::unordered_map<std::string, int>();
+            data->seed = seed + i; 
             threadDataArray[i] = data; // Store pointer to thread data
 
             pthread_create(&threads[i], NULL, map, data);
