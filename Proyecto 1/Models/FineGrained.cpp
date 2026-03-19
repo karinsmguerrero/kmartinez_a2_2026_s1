@@ -4,6 +4,8 @@
 #include <pthread.h>
 #include "../FileManagement/FileReader.h"
 #include "../Mapper/Mapper.h"
+#include <random>
+#include <thread>
 
 int global_clock = 0;
 int threads_completed = 0; // Tracks when all work is done
@@ -20,6 +22,18 @@ struct ThreadData
     std::unordered_map<std::string, int> localHashMap;
 };
 
+/* Thread-safe function that returns a random number between min and max (inclusive).
+This function takes ~142% the time that calling rand() would take. For this extra
+cost you get a better uniform distribution and thread-safety. */
+int intRand(const int &min, const int &max)
+{
+    static thread_local std::mt19937 *generator = nullptr;
+    if (!generator)
+        generator = new std::mt19937(clock() + std::hash<std::thread::id>()(std::this_thread::get_id()));
+    std::uniform_int_distribution<int> distribution(min, max);
+    return distribution(*generator);
+}
+
 void *map(void *arg)
 {
     ThreadData *data = static_cast<ThreadData *>(arg);
@@ -28,6 +42,8 @@ void *map(void *arg)
     int end_line = data->text_chunk.size();
     int current_line = start_line;
     bool done = false;
+    bool isStalled = false;
+    int stalls = 0;
 
     // Loop until ALL threads have finished their workloads
     while (1)
@@ -58,31 +74,48 @@ void *map(void *arg)
 
         if (!done)
         {
-            // model stalls
-            if (rand() % 100 < 20)
+            if (isStalled)
             {
+                // Costly stall has completed, now we can proceed with work
+                isStalled = false; 
             }
             else
             {
-                std::vector<std::string> chunk;
-                if (current_line + 4 > end_line)
+                // model stalls
+                int randValue = intRand(1, 100);
+                if (randValue < 10) // models costly stall 10% of the time
                 {
-                    chunk.insert(chunk.end(), data->text_chunk.begin() + current_line, data->text_chunk.begin() + end_line);
-                    current_line = end_line;
+                    isStalled = true;
+                    stalls++;
+                }
+                else if (randValue > 80) // models a short stall 20% of the time
+                {
+                    isStalled = false;
+                    stalls++;
                 }
                 else
                 {
-                    chunk.insert(chunk.end(), data->text_chunk.begin() + current_line, data->text_chunk.begin() + current_line + 4);
-                    current_line += 4;
-                }
-                processTextChunk(chunk, data->localHashMap);
-                // printf("[cycle %02d] Thread %d: COMPUTE (Line[%d])\n", global_clock, tid, current_line);
+                    std::vector<std::string> chunk;
+                    if (current_line + 4 > end_line)
+                    {
+                        chunk.insert(chunk.end(), data->text_chunk.begin() + current_line, data->text_chunk.begin() + end_line);
+                        current_line = end_line;
+                    }
+                    else
+                    {
+                        chunk.insert(chunk.end(), data->text_chunk.begin() + current_line, data->text_chunk.begin() + current_line + 4);
+                        current_line += 4;
+                    }
+                    processTextChunk(chunk, data->localHashMap);
+                    // printf("[cycle %02d] Thread %d: COMPUTE (Line[%d])\n", global_clock, tid, current_line);
 
-                if (current_line >= end_line)
-                {
-                    done = true;
-                    threads_completed++;
-                    printf("[cycle %02d] Thread %d: FINISHED WORKLOAD\n", global_clock, tid);
+                    if (current_line >= end_line)
+                    {
+                        done = true;
+                        threads_completed++;
+                        printf("[cycle %02d] Thread %d: FINISHED WORKLOAD\n", global_clock, tid);
+                        printf("[cycle %02d] Thread %d: Total stalls = %d\n", global_clock, tid, stalls);
+                    }
                 }
             }
         }
