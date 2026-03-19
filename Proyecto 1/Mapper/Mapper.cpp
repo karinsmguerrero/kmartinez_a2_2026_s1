@@ -1,8 +1,5 @@
 #include "Mapper.h"
 
-std::vector<std::string> textChunk;
-std::unordered_map<std::string, int> localHashMap;
-
 // Function to remove all punctuation from a word
 std::string removePunctuation(const std::string &word)
 {
@@ -20,7 +17,7 @@ std::string removePunctuation(const std::string &word)
 }
 
 // Function to process a chunk of text and count word occurrences
-void processTextChunk(const std::vector<std::string> &chunk)
+void processTextChunk(const std::vector<std::string> &chunk, std::unordered_map<std::string, int> &localHashMap)
 {
     for (const auto &line : chunk)
     {
@@ -40,7 +37,7 @@ void processTextChunk(const std::vector<std::string> &chunk)
 }
 
 // Function to print the word counts
-void printHashMap()
+void printHashMap(std::unordered_map<std::string, int> &localHashMap)
 {
     for (const auto &pair : localHashMap)
     {

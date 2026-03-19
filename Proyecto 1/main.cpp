@@ -2,6 +2,7 @@
 #include <string>
 #include <algorithm>
 #include "Models/Serial.cpp"
+#include "Models/FineGrained.cpp"
 
 std::vector<std::string> getTopKWords(const std::unordered_map<std::string, int> &wordCounts, size_t k)
 {
@@ -12,7 +13,7 @@ std::vector<std::string> getTopKWords(const std::unordered_map<std::string, int>
     std::sort(wordCountVector.begin(), wordCountVector.end(),
               [](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b)
               {
-                  return b.second < a.second; // Sort in descending order
+                  return b.second < a.second;
               });
 
     // Extract the top k words
@@ -36,7 +37,6 @@ void printTopKWordCounts(std::vector<std::string> topKWords, const std::unordere
 
 int main()
 {
-    // List of files to process
     std::vector<std::string> files = {
         "Assets/conde.txt",
         "Assets/fellowship.txt",
@@ -44,7 +44,7 @@ int main()
 
     std::cout << "Select a model to run:" << std::endl;
     std::cout << "1. Serial Model" << std::endl;
-    std::cout << "2. Parallel Model" << std::endl;
+    std::cout << "2. Parallel Fine Grained Model" << std::endl;
     std::cout << "Enter your choice (1 or 2): ";
     int modelChoice;
     std::cin >> modelChoice;
@@ -57,15 +57,24 @@ int main()
     int fileChoice;
     std::cin >> fileChoice;
 
+    int seed = clock() + std::hash<std::thread::id>()(std::this_thread::get_id()); // Seed for random number generator based on current time and thread ID
+
     if (modelChoice == 1)
     {
-        std::cout << "------------ Running Serial Model on " << files[fileChoice - 1] << "------------ "<< std::endl;
-        runMapReduce(files[fileChoice - 1]); // Process the selected file
-        printTopKWordCounts(getTopKWords(localHashMap, 10), localHashMap); // Print the top 10 most common words
+        std::cout << "------------ Running Serial Model on " << files[fileChoice - 1] << "------------ " << std::endl;
+        std::unordered_map<std::string, int> globalHashMap;
+        runMapReduce_serial(files[fileChoice - 1], globalHashMap);   
+        std::cout << "Top 10 most common words in " << files[fileChoice - 1] << ":" << std::endl;        
+        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap); 
     }
     else if (modelChoice == 2)
     {
-        std::cout << "------------ Running Parallel Model on " << files[fileChoice - 1] << "------------ "<< std::endl;
+        std::cout << "------------ Running Parallel Fine Grained Model on " << files[fileChoice - 1] << "------------ " << std::endl;
+        std::unordered_map<std::string, int> globalHashMap;         
+        runMapReduce_fine(files[fileChoice - 1], 4, globalHashMap, seed);
+        //std::cout << "Global hash map size: " << globalHashMap.size() << std::endl;
+        std::cout << "Top 10 most common words in " << files[fileChoice - 1] << ":" << std::endl;
+        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap); 
     }
     else
     {
@@ -75,28 +84,3 @@ int main()
 
     return 0;
 }
-
-// TO DO
-/*
-1. Take text vector and divide it into smaller vectors of a specified size (e.g., 100 lines each).
-2. Create a thread for each smaller vector to process it concurrently.
-3. Each thread will perform the following tasks:
-    a. Count the occurrences of each word in its assigned vector.
-    b. Store the word counts in a local data structure (e.g., a map or dictionary).
-4. After all threads have completed their processing, the main thread will:
-    a. Collect the word counts from each thread.
-    b. Combine the counts to get the total occurrences of each word across all vectors.
-5. Finally, the program will output the total word counts.
-*/
-
-/*
-size_t chunkSize = 100; // Number of lines per chunk
-size_t totalLines = getLineCount(lines);
-size_t numChunks = (totalLines + chunkSize - 1) / chunkSize; // Calculate number of chunks needed
-
-for (size_t i = 0; i < numChunks; ++i) {
-    size_t start = i * chunkSize;
-    size_t end = std::min(start + chunkSize, totalLines);
-    std::vector<std::string> textChunk(lines.begin() + start, lines.begin() + end);
-    processTextChunk(textChunk); // Process the chunk of text
-}*/
