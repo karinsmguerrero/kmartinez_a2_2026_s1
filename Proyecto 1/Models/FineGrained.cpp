@@ -70,13 +70,13 @@ void *map(void *arg)
             else
             {
                 // model stalls
-                int randValue = intRand(1, 100, data->seed);
-                if (randValue < 10) // models costly stall 10% of the time
+                int stall_probability = get_random_number(1, 100, data->seed);
+                if (stall_probability < 10) // models costly stall 10% of the time
                 {
                     is_stalled = true;
                     total_stalls++;
                 }
-                else if (randValue > 80) // models a short stall 20% of the time
+                else if (stall_probability > 80) // models a short stall 20% of the time
                 {
                     is_stalled = false;
                     total_stalls++;

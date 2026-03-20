@@ -1,7 +1,7 @@
 #include "Stalls.h"
 
 /*Code taken from: https://stackoverflow.com/questions/21237905/how-do-i-generate-thread-safe-uniform-random-numbers*/
-int intRand(const int &min, const int &max, int seed)
+int get_random_number(const int &min, const int &max, int seed)
 {
     static thread_local std::mt19937 *generator = nullptr;
     if (!generator)

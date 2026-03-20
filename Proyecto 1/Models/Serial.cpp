@@ -34,7 +34,7 @@ int runMapReduce_serial(std::string filePath, std::unordered_map<std::string, in
             else
             {
                 // model stalls
-                int randValue = intRand(1, 100, seed);
+                int randValue = get_random_number(1, 100, seed);
                 if (randValue < 10) // models costly stall 10% of the time
                 {
                     is_stalled = true;
