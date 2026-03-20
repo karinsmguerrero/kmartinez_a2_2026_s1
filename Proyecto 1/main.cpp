@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "Models/Serial.cpp"
 #include "Models/FineGrained.cpp"
-#include "Models/CoarseGrained.cpp"
+#include "Models/CoarseGrained.h"
 
 std::vector<std::string> getTopKWords(const std::unordered_map<std::string, int> &wordCounts, size_t k)
 {
@@ -86,7 +86,8 @@ int main()
         std::cout << "------------ Running Parallel Coarse Grained Model on " << files[fileChoice - 1] << "------------ " << std::endl;
         std::unordered_map<std::string, int> globalHashMap;  
 
-        runMapReduce_coarse(files[fileChoice - 1], 4, globalHashMap, seed);
+        CoarseGrained coarseGrainedModel;
+        coarseGrainedModel.runMapReduce(files[fileChoice - 1], 4, globalHashMap, seed);
         
         std::cout << "Top 10 most common words in " << files[fileChoice - 1] << ":" << std::endl;
         printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap); 

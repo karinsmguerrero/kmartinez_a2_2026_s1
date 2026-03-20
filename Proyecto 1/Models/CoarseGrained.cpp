@@ -1,34 +1,17 @@
-#include <iostream>
-#include <string>
-#include <algorithm>
-#include <pthread.h>
-#include "../FileManagement/FileReader.h"
-#include "../Mapper/Mapper.h"
-#include "Stalls.h"
+#include "CoarseGrained.h"
 
-int global_clock = 0;
-int threads_completed = 0; // Tracks when all work is done
-int total_threads = 0;     // Total number of threads to be used
+// Static member definitions
+int CoarseGrained::global_clock = 0;
+int CoarseGrained::threads_completed = 0;
+int CoarseGrained::total_threads = 0;
+pthread_mutex_t CoarseGrained::pipeline_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t CoarseGrained::clock_tick = PTHREAD_COND_INITIALIZER;
+int CoarseGrained::current_active_thread = 0;
+int *CoarseGrained::threads_done = nullptr;
 
-pthread_mutex_t pipeline_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t clock_tick = PTHREAD_COND_INITIALIZER;
-
-// CGMT specific variables
-int current_active_thread = 0;
-int threads_completed = 0;
-int *threads_done;
-
-struct ThreadData
-{
-    int thread_id;
-    std::vector<std::string> text_chunk;
-    int chunk_size;
-    std::unordered_map<std::string, int> localHashMap;
-    int seed;
-};
 
 // Hardware scheduler: finds the next available thread
-void switch_to_next_thread()
+void CoarseGrained::switch_to_next_thread()
 {
     int next_thread = (current_active_thread + 1) % total_threads;
     while (threads_done[next_thread] && threads_completed < total_threads)
@@ -38,7 +21,8 @@ void switch_to_next_thread()
     current_active_thread = next_thread;
 }
 
-void *map(void *arg)
+// Map function for each thread
+void *CoarseGrained::map(void *arg)
 {
     ThreadData *data = static_cast<ThreadData *>(arg);
     int tid = data->thread_id;
@@ -92,11 +76,11 @@ void *map(void *arg)
                     total_stalls++;
 
                     // CGMT: Switch threads ON STALL, incurring a 1-cycle penalty
-                    switch_to_next_thread();
+                    CoarseGrained::switch_to_next_thread();
 
                     if (threads_completed < total_threads && current_active_thread != tid)
                     {
-                        //printf("[cycle %02d] HW: Context Switch Penalty\n", global_clock);
+                        // printf("[cycle %02d] HW: Context Switch Penalty\n", global_clock);
                         global_clock++;
                     }
                 }
@@ -128,7 +112,7 @@ void *map(void *arg)
                         threads_done[tid] = 1; // Mark this thread as done for the scheduler
                         printf("[cycle %02d] Thread %d: FINISHED WORKLOAD\n", global_clock, tid);
                         printf("[cycle %02d] Thread %d: Total stalls = %d\n", global_clock, tid, total_stalls);
-                        switch_to_next_thread(); // Move to the next thread immediately after finishing
+                        CoarseGrained::switch_to_next_thread(); // Move to the next thread immediately after finishing
                     }
                 }
             }
@@ -146,7 +130,8 @@ void *map(void *arg)
     return NULL;
 }
 
-int runMapReduce_coarse(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
+// 
+int CoarseGrained::runMapReduce(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
 {
     global_clock = 0;
     threads_done = new int[numThreads](); // Initialize thread done array based on number of threads
@@ -178,7 +163,7 @@ int runMapReduce_coarse(std::string filePath, int numThreads, std::unordered_map
             data->seed = seed + i;
             threadDataArray[i] = data; // Store pointer to thread data
 
-            pthread_create(&threads[i], NULL, map, data);
+            pthread_create(&threads[i], NULL, &CoarseGrained::map, data);
         }
 
         for (int i = 0; i < numThreads; i++)
