@@ -1,28 +1,13 @@
-#include <iostream>
-#include <string>
-#include <algorithm>
-#include <pthread.h>
-#include "../FileManagement/FileReader.h"
-#include "../Mapper/Mapper.h"
-#include "Stalls.h"
+#include "FineGrained.h"
 
-int global_clock = 0;
-int threads_completed = 0; // Tracks when all work is done
-int total_threads = 0;     // Total number of threads to be used
+int FineGrained::global_clock = 0;
+int FineGrained::threads_completed = 0; // Tracks when all work is done
+int FineGrained::total_threads = 0;     // Total number of threads to be used
 
-pthread_mutex_t pipeline_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t clock_tick = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t FineGrained::pipeline_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t FineGrained::clock_tick = PTHREAD_COND_INITIALIZER;
 
-struct ThreadData
-{
-    int thread_id;
-    std::vector<std::string> text_chunk;
-    int chunk_size;
-    std::unordered_map<std::string, int> localHashMap;
-    int seed; 
-};
-
-void *map(void *arg)
+void *FineGrained::map(void *arg)
 {
     ThreadData *data = static_cast<ThreadData *>(arg);
     int tid = data->thread_id;
@@ -65,7 +50,7 @@ void *map(void *arg)
             if (is_stalled)
             {
                 // Costly stall has completed, now we can proceed with work
-                is_stalled = false; 
+                is_stalled = false;
             }
             else
             {
@@ -120,7 +105,7 @@ void *map(void *arg)
     return NULL;
 }
 
-int runMapReduce_fine(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
+int FineGrained::runMapReduce(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
 {
     global_clock = 0;
     // Read file and get lines
@@ -148,7 +133,7 @@ int runMapReduce_fine(std::string filePath, int numThreads, std::unordered_map<s
             data->text_chunk = textChunk;
             data->chunk_size = chunkSize;
             data->localHashMap = std::unordered_map<std::string, int>();
-            data->seed = seed + i; 
+            data->seed = seed + i;
             threadDataArray[i] = data; // Store pointer to thread data
 
             pthread_create(&threads[i], NULL, map, data);

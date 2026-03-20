@@ -1,8 +1,8 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
-#include "Models/Serial.cpp"
-#include "Models/FineGrained.cpp"
+#include "Models/Serial.h"
+#include "Models/FineGrained.h"
 #include "Models/CoarseGrained.h"
 
 std::vector<std::string> getTopKWords(const std::unordered_map<std::string, int> &wordCounts, size_t k)
@@ -66,7 +66,8 @@ int main()
         std::cout << "------------ Running Serial Model on " << files[fileChoice - 1] << "------------ " << std::endl;
         std::unordered_map<std::string, int> globalHashMap;
 
-        runMapReduce_serial(files[fileChoice - 1], globalHashMap, seed);   
+        Serial serialModel;
+        serialModel.runMapReduce(files[fileChoice - 1], globalHashMap, seed);
 
         std::cout << "Top 10 most common words in " << files[fileChoice - 1] << ":" << std::endl;        
         printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap); 
@@ -76,7 +77,8 @@ int main()
         std::cout << "------------ Running Parallel Fine Grained Model on " << files[fileChoice - 1] << "------------ " << std::endl;
         std::unordered_map<std::string, int> globalHashMap;  
 
-        runMapReduce_fine(files[fileChoice - 1], 4, globalHashMap, seed);
+        FineGrained fineGrainedModel;
+        fineGrainedModel.runMapReduce(files[fileChoice - 1], 4, globalHashMap, seed);
         
         std::cout << "Top 10 most common words in " << files[fileChoice - 1] << ":" << std::endl;
         printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap); 

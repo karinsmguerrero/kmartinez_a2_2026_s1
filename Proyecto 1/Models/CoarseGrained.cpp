@@ -13,6 +13,7 @@ int *CoarseGrained::threads_done = nullptr;
 // Hardware scheduler: finds the next available thread
 void CoarseGrained::switch_to_next_thread()
 {
+    // Code taken from: https://drive.google.com/drive/u/0/folders/16v8QjxQEaG5Tw4uz01S2KzPAxLs4pI07
     int next_thread = (current_active_thread + 1) % total_threads;
     while (threads_done[next_thread] && threads_completed < total_threads)
     {
@@ -130,7 +131,7 @@ void *CoarseGrained::map(void *arg)
     return NULL;
 }
 
-// 
+// Function to run the MapReduce process using the Coarse Grained Multithreading model
 int CoarseGrained::runMapReduce(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
 {
     global_clock = 0;
