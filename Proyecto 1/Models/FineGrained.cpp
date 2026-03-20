@@ -4,7 +4,7 @@
 #include <pthread.h>
 #include "../FileManagement/FileReader.h"
 #include "../Mapper/Mapper.h"
-#include "Stalls.cpp"
+#include "Stalls.h"
 
 int global_clock = 0;
 int threads_completed = 0; // Tracks when all work is done
@@ -122,6 +122,7 @@ void *map(void *arg)
 
 int runMapReduce_fine(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
 {
+    global_clock = 0;
     // Read file and get lines
     std::vector<std::string> lines = readFileToLines(filePath);
 

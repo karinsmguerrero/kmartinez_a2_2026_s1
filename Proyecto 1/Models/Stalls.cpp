@@ -1,5 +1,4 @@
-#include <random>
-#include <thread>
+#include "Stalls.h"
 
 /*Code taken from: https://stackoverflow.com/questions/21237905/how-do-i-generate-thread-safe-uniform-random-numbers*/
 int intRand(const int &min, const int &max, int seed)

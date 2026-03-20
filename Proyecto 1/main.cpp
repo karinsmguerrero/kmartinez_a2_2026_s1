@@ -63,16 +63,19 @@ int main()
     {
         std::cout << "------------ Running Serial Model on " << files[fileChoice - 1] << "------------ " << std::endl;
         std::unordered_map<std::string, int> globalHashMap;
-        runMapReduce_serial(files[fileChoice - 1], globalHashMap);   
+
+        runMapReduce_serial(files[fileChoice - 1], globalHashMap, seed);   
+
         std::cout << "Top 10 most common words in " << files[fileChoice - 1] << ":" << std::endl;        
         printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap); 
     }
     else if (modelChoice == 2)
     {
         std::cout << "------------ Running Parallel Fine Grained Model on " << files[fileChoice - 1] << "------------ " << std::endl;
-        std::unordered_map<std::string, int> globalHashMap;         
+        std::unordered_map<std::string, int> globalHashMap;  
+
         runMapReduce_fine(files[fileChoice - 1], 4, globalHashMap, seed);
-        //std::cout << "Global hash map size: " << globalHashMap.size() << std::endl;
+        
         std::cout << "Top 10 most common words in " << files[fileChoice - 1] << ":" << std::endl;
         printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap); 
     }
