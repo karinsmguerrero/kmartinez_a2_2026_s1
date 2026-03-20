@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "Models/Serial.cpp"
 #include "Models/FineGrained.cpp"
+#include "Models/CoarseGrained.cpp"
 
 std::vector<std::string> getTopKWords(const std::unordered_map<std::string, int> &wordCounts, size_t k)
 {
@@ -45,7 +46,8 @@ int main()
     std::cout << "Select a model to run:" << std::endl;
     std::cout << "1. Serial Model" << std::endl;
     std::cout << "2. Parallel Fine Grained Model" << std::endl;
-    std::cout << "Enter your choice (1 or 2): ";
+    std::cout << "3. Parallel Coarse Grained Model" << std::endl;
+    std::cout << "Enter your choice (1, 2, or 3): ";
     int modelChoice;
     std::cin >> modelChoice;
 
@@ -75,6 +77,16 @@ int main()
         std::unordered_map<std::string, int> globalHashMap;  
 
         runMapReduce_fine(files[fileChoice - 1], 4, globalHashMap, seed);
+        
+        std::cout << "Top 10 most common words in " << files[fileChoice - 1] << ":" << std::endl;
+        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap); 
+    }
+    else if (modelChoice == 3)
+    {
+        std::cout << "------------ Running Parallel Coarse Grained Model on " << files[fileChoice - 1] << "------------ " << std::endl;
+        std::unordered_map<std::string, int> globalHashMap;  
+
+        runMapReduce_coarse(files[fileChoice - 1], 4, globalHashMap, seed);
         
         std::cout << "Top 10 most common words in " << files[fileChoice - 1] << ":" << std::endl;
         printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap); 
