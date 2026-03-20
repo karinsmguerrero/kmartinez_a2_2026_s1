@@ -1,12 +1,7 @@
-#include <iostream>
-#include <string>
-#include <algorithm>
-#include "../FileManagement/FileReader.h"
-#include "../Mapper/Mapper.h"
-#include "Stalls.h"
+#include "Serial.h"
 
 
-int runMapReduce_serial(std::string filePath, std::unordered_map<std::string, int> &localHashMap, int seed)
+int Serial::runMapReduce(std::string filePath, std::unordered_map<std::string, int> &localHashMap, int seed)
 {
     int clock_ticks = 0;
     // Read file and get lines
@@ -34,7 +29,7 @@ int runMapReduce_serial(std::string filePath, std::unordered_map<std::string, in
             else
             {
                 // model stalls
-                int randValue = intRand(1, 100, seed);
+                int randValue = get_random_number(1, 100, seed);
                 if (randValue < 10) // models costly stall 10% of the time
                 {
                     is_stalled = true;

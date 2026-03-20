@@ -1,13 +1,29 @@
-#include "FineGrained.h"
+#include "CoarseGrained.h"
 
-int FineGrained::global_clock = 0;
-int FineGrained::threads_completed = 0; // Tracks when all work is done
-int FineGrained::total_threads = 0;     // Total number of threads to be used
+// Static member definitions
+int CoarseGrained::global_clock = 0;
+int CoarseGrained::threads_completed = 0;
+int CoarseGrained::total_threads = 0;
+pthread_mutex_t CoarseGrained::pipeline_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t CoarseGrained::clock_tick = PTHREAD_COND_INITIALIZER;
+int CoarseGrained::current_active_thread = 0;
+int *CoarseGrained::threads_done = nullptr;
 
-pthread_mutex_t FineGrained::pipeline_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t FineGrained::clock_tick = PTHREAD_COND_INITIALIZER;
 
-void *FineGrained::map(void *arg)
+// Hardware scheduler: finds the next available thread
+void CoarseGrained::switch_to_next_thread()
+{
+    // Code taken from: https://drive.google.com/drive/u/0/folders/16v8QjxQEaG5Tw4uz01S2KzPAxLs4pI07
+    int next_thread = (current_active_thread + 1) % total_threads;
+    while (threads_done[next_thread] && threads_completed < total_threads)
+    {
+        next_thread = (next_thread + 1) % total_threads;
+    }
+    current_active_thread = next_thread;
+}
+
+// Map function for each thread
+void *CoarseGrained::map(void *arg)
 {
     ThreadData *data = static_cast<ThreadData *>(arg);
     int tid = data->thread_id;
@@ -29,9 +45,8 @@ void *FineGrained::map(void *arg)
             pthread_mutex_unlock(&pipeline_mutex);
             break;
         }
-
-        // FGMT: This thread can only proceed when the global clock modulo NUM_THREADS matches its ID
-        while ((global_clock % total_threads) != tid)
+        // CGMT: Wait until the hardware schedules THIS thread
+        while (current_active_thread != tid)
         {
             if (threads_completed == total_threads)
                 break;
@@ -60,6 +75,15 @@ void *FineGrained::map(void *arg)
                 {
                     is_stalled = true;
                     total_stalls++;
+
+                    // CGMT: Switch threads ON STALL, incurring a 1-cycle penalty
+                    CoarseGrained::switch_to_next_thread();
+
+                    if (threads_completed < total_threads && current_active_thread != tid)
+                    {
+                        // printf("[cycle %02d] HW: Context Switch Penalty\n", global_clock);
+                        global_clock++;
+                    }
                 }
                 else if (stall_probability > 80) // models a short stall 20% of the time
                 {
@@ -86,8 +110,10 @@ void *FineGrained::map(void *arg)
                     {
                         done = true;
                         threads_completed++;
+                        threads_done[tid] = 1; // Mark this thread as done for the scheduler
                         printf("[cycle %02d] Thread %d: FINISHED WORKLOAD\n", global_clock, tid);
                         printf("[cycle %02d] Thread %d: Total stalls = %d\n", global_clock, tid, total_stalls);
+                        CoarseGrained::switch_to_next_thread(); // Move to the next thread immediately after finishing
                     }
                 }
             }
@@ -105,9 +131,11 @@ void *FineGrained::map(void *arg)
     return NULL;
 }
 
-int FineGrained::runMapReduce(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
+// Function to run the MapReduce process using the Coarse Grained Multithreading model
+int CoarseGrained::runMapReduce(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
 {
     global_clock = 0;
+    threads_done = new int[numThreads](); // Initialize thread done array based on number of threads
     // Read file and get lines
     std::vector<std::string> lines = readFileToLines(filePath);
 
@@ -136,7 +164,7 @@ int FineGrained::runMapReduce(std::string filePath, int numThreads, std::unorder
             data->seed = seed + i;
             threadDataArray[i] = data; // Store pointer to thread data
 
-            pthread_create(&threads[i], NULL, map, data);
+            pthread_create(&threads[i], NULL, &CoarseGrained::map, data);
         }
 
         for (int i = 0; i < numThreads; i++)

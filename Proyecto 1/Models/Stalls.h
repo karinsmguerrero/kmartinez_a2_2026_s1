@@ -4,6 +4,6 @@
 #include <random>
 #include <thread>
 
-int intRand(const int &min, const int &max, int seed);
+int get_random_number(const int &min, const int &max, int seed);
 
 #endif // STALLS_H
