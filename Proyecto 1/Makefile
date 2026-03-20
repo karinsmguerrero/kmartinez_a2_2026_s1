@@ -2,7 +2,7 @@
 TARGET = main
 
 # Archivos fuente
-SRC = main.cpp FileManagement/FileReader.cpp Mapper/Mapper.cpp
+SRC = main.cpp FileManagement/FileReader.cpp Mapper/Mapper.cpp Models/Stalls.cpp
 
 # Opciones de compilación
 CXXFLAGS = -Wall -Wextra -std=c++11
