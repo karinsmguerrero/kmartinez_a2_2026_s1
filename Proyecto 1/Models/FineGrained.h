@@ -5,7 +5,6 @@
 #include <string>
 #include <algorithm>
 #include <pthread.h>
-#include "../FileManagement/FileReader.h"
 #include "../Mapper/Mapper.h"
 #include "Stalls.h"
 
@@ -29,8 +28,14 @@ public:
         int seed;
     };
 
+    struct ThreadResults
+    {
+        int clock_ticks;
+        int total_stalls;
+    };
+
     static void *map(void *arg);
-    int runMapReduce(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed);
+    ThreadResults runMapReduce(std::vector<std::string> lines, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed);
 };
 
 #endif

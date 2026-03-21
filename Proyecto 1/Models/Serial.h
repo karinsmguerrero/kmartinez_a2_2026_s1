@@ -4,14 +4,18 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
-#include "../FileManagement/FileReader.h"
 #include "../Mapper/Mapper.h"
 #include "Stalls.h"
 
 class Serial
 {
 public:
-    int runMapReduce(std::string filePath, std::unordered_map<std::string, int> &localHashMap, int seed);
+    struct ThreadResults
+    {
+        int clock_ticks;
+        int total_stalls;
+    };
+    ThreadResults runMapReduce(std::vector<std::string> lines, std::unordered_map<std::string, int> &localHashMap, int seed);
 };
 
 #endif // SERIAL_H

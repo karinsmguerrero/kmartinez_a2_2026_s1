@@ -34,21 +34,35 @@ int main()
     {
         std::cout << "------------ Running Serial Model on " << files[fileChoice - 1] << "------------ " << std::endl;
         std::unordered_map<std::string, int> globalHashMap;
-
-        Serial serialModel;
-        serialModel.runMapReduce(files[fileChoice - 1], globalHashMap, seed);
-        printf("Top 10 most common words in %s:\n", files[fileChoice - 1].c_str());
-        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);
+        std::vector<std::string> lines = readFileToLines(files[fileChoice - 1]);
+        if (!lines.empty())
+        {
+            Serial serialModel;
+            serialModel.runMapReduce(lines, globalHashMap, seed);
+            printf("Top 10 most common words in %s:\n", files[fileChoice - 1].c_str());
+            printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);
+        }
+        else
+        {
+            printf("Failed to read file.\n");
+        }
     }
     else if (modelChoice == 2)
     {
         std::cout << "------------ Running Parallel Fine Grained Model on " << files[fileChoice - 1] << "------------ " << std::endl;
         std::unordered_map<std::string, int> globalHashMap;
-
-        FineGrained fineGrainedModel;
-        fineGrainedModel.runMapReduce(files[fileChoice - 1], 4, globalHashMap, seed);
-        printf("Top 10 most common words in %s:\n", files[fileChoice - 1].c_str());
-        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);
+        std::vector<std::string> lines = readFileToLines(files[fileChoice - 1]);
+        if (!lines.empty())
+        {
+            FineGrained fineGrainedModel;
+            fineGrainedModel.runMapReduce(lines, 4, globalHashMap, seed);
+            printf("Top 10 most common words in %s:\n", files[fileChoice - 1].c_str());
+            printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);
+        }
+        else
+        {
+            printf("Failed to read file.\n");
+        }
     }
     else if (modelChoice == 3)
     {
