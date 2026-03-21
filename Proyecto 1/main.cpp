@@ -3,6 +3,7 @@
 #include "Models/Serial.h"
 #include "Models/FineGrained.h"
 #include "Models/CoarseGrained.h"
+#include "Utils/TopWords.h"
 
 int main()
 {
@@ -36,25 +37,29 @@ int main()
 
         Serial serialModel;
         serialModel.runMapReduce(files[fileChoice - 1], globalHashMap, seed);
+        printf("Top 10 most common words in %s:\n", files[fileChoice - 1].c_str());
+        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);
     }
     else if (modelChoice == 2)
     {
         std::cout << "------------ Running Parallel Fine Grained Model on " << files[fileChoice - 1] << "------------ " << std::endl;
-        std::unordered_map<std::string, int> globalHashMap;  
+        std::unordered_map<std::string, int> globalHashMap;
 
         FineGrained fineGrainedModel;
         fineGrainedModel.runMapReduce(files[fileChoice - 1], 4, globalHashMap, seed);
+        printf("Top 10 most common words in %s:\n", files[fileChoice - 1].c_str());
+        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);
     }
     else if (modelChoice == 3)
     {
         std::cout << "------------ Running Parallel Coarse Grained Model on " << files[fileChoice - 1] << "------------ " << std::endl;
-        std::unordered_map<std::string, int> globalHashMap;  
+        std::unordered_map<std::string, int> globalHashMap;
 
         CoarseGrained coarseGrainedModel;
         coarseGrainedModel.runMapReduce(files[fileChoice - 1], 4, globalHashMap, seed);
-        
-        std::cout << "Top 10 most common words in " << files[fileChoice - 1] << ":" << std::endl;
-        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap); 
+
+        printf("Top 10 most common words in %s:\n", files[fileChoice - 1].c_str());
+        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);
     }
     else
     {

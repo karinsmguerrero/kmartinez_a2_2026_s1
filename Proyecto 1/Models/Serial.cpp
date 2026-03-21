@@ -71,13 +71,11 @@ int Serial::runMapReduce(std::string filePath, std::unordered_map<std::string, i
         // No Reduce phase needed for the serial model since we are directly updating the localHashMap in the Mapper
         // and there are no other threads to combine results with.
 
-        printf("Top 10 most common words in %s:\n", filePath.c_str());
-        printTopKWordCounts(getTopKWords(localHashMap, 10), localHashMap);
+        return clock_ticks;
     }
     else
     {
         printf("Failed to read file.\n");
+        return 0;
     }
-
-    return 0;
 }

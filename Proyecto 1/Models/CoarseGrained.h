@@ -8,7 +8,6 @@
 #include "../FileManagement/FileReader.h"
 #include "../Mapper/Mapper.h"
 #include "Stalls.h"
-#include "../Utils/TopWords.h"
 
 class CoarseGrained
 {
@@ -36,8 +35,7 @@ public:
 
     static void switch_to_next_thread();
     static void *map(void *arg);
-    int runMapReduce(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed);   
-
+    int runMapReduce(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed);
 };
 
 #endif // COARSEGRAINED_H

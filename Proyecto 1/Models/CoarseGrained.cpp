@@ -182,9 +182,6 @@ int CoarseGrained::runMapReduce(std::string filePath, int numThreads, std::unord
             }
         }
 
-        printf("Top 10 most common words in %s:\n", filePath.c_str());
-        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);
-
         // Clean up thread data
         for (int i = 0; i < numThreads; i++)
         {

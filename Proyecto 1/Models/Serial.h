@@ -7,7 +7,6 @@
 #include "../FileManagement/FileReader.h"
 #include "../Mapper/Mapper.h"
 #include "Stalls.h"
-#include "../Utils/TopWords.h"
 
 class Serial
 {
