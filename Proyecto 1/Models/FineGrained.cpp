@@ -7,7 +7,7 @@ int FineGrained::total_threads = 0;     // Total number of threads to be used
 pthread_mutex_t FineGrained::pipeline_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t FineGrained::clock_tick = PTHREAD_COND_INITIALIZER;
 
-void *FineGrained::map(void *arg)
+FineGrained::ThreadResults *FineGrained::map(void *arg)
 {
     ThreadData *data = static_cast<ThreadData *>(arg);
     int tid = data->thread_id;
@@ -102,14 +102,13 @@ void *FineGrained::map(void *arg)
         pthread_cond_broadcast(&clock_tick);
         pthread_mutex_unlock(&pipeline_mutex);
     }
-    return NULL;
+    return new ThreadResults{global_clock, total_stalls};
 }
 
 FineGrained::ThreadResults FineGrained::runMapReduce(std::vector<std::string> lines, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
 {
     global_clock = 0;
     int total_stalls = 0;
-    ThreadResults results;
 
     size_t totalLines = lines.size();
     pthread_t threads[numThreads];
@@ -132,12 +131,15 @@ FineGrained::ThreadResults FineGrained::runMapReduce(std::vector<std::string> li
         data->seed = seed + i;
         threadDataArray[i] = data; // Store pointer to thread data
 
-        pthread_create(&threads[i], NULL, map, data);
+        pthread_create(&threads[i], NULL, (void *(*)(void *))map, data);
     }
 
     for (int i = 0; i < numThreads; i++)
     {
-        pthread_join(threads[i], NULL);
+        ThreadResults *result;
+        pthread_join(threads[i], (void **)&result);
+        total_stalls += result->total_stalls;
+        delete result;
     }
 
     // Reduce phase: Add the word counts
@@ -158,6 +160,5 @@ FineGrained::ThreadResults FineGrained::runMapReduce(std::vector<std::string> li
     }
     delete[] threadDataArray;
 
-    total_threads = 0; // Reset total threads for next run
     return ThreadResults{global_clock, total_stalls};
 }

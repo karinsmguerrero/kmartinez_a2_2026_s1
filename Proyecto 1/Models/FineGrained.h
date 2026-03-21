@@ -34,7 +34,7 @@ public:
         int total_stalls;
     };
 
-    static void *map(void *arg);
+    static ThreadResults *map(void *arg);
     ThreadResults runMapReduce(std::vector<std::string> lines, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed);
 };
 

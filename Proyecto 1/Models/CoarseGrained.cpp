@@ -22,7 +22,7 @@ void CoarseGrained::switch_to_next_thread()
 }
 
 // Map function for each thread
-void *CoarseGrained::map(void *arg)
+CoarseGrained::ThreadResults *CoarseGrained::map(void *arg)
 {
     ThreadData *data = static_cast<ThreadData *>(arg);
     int tid = data->thread_id;
@@ -127,13 +127,14 @@ void *CoarseGrained::map(void *arg)
         pthread_cond_broadcast(&clock_tick);
         pthread_mutex_unlock(&pipeline_mutex);
     }
-    return NULL;
+    return new ThreadResults{global_clock, total_stalls};
 }
 
 // Function to run the MapReduce process using the Coarse Grained Multithreading model
-int CoarseGrained::runMapReduce(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
+CoarseGrained::ThreadResults CoarseGrained::runMapReduce(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
 {
     global_clock = 0;
+    int total_stalls = 0;
     threads_done = new int[numThreads](); // Initialize thread done array based on number of threads
     // Read file and get lines
     std::vector<std::string> lines = readFileToLines(filePath);
@@ -163,12 +164,15 @@ int CoarseGrained::runMapReduce(std::string filePath, int numThreads, std::unord
             data->seed = seed + i;
             threadDataArray[i] = data; // Store pointer to thread data
 
-            pthread_create(&threads[i], NULL, &CoarseGrained::map, data);
+            pthread_create(&threads[i], NULL, (void* (*)(void*)) &CoarseGrained::map, data);
         }
 
         for (int i = 0; i < numThreads; i++)
         {
-            pthread_join(threads[i], NULL);
+            ThreadResults *result;
+            pthread_join(threads[i], (void**)&result);
+            total_stalls += result->total_stalls;
+            delete result;
         }
 
         // Reduce phase: Add the word counts
@@ -194,6 +198,6 @@ int CoarseGrained::runMapReduce(std::string filePath, int numThreads, std::unord
         printf("Failed to read file.\n");
     }
 
-    total_threads = 0; // Reset total threads for next run
-    return 0;
+    delete[] threads_done;
+    return ThreadResults{global_clock, total_stalls};
 }

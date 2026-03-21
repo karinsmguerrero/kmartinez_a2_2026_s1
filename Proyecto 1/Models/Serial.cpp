@@ -53,8 +53,8 @@ Serial::ThreadResults Serial::runMapReduce(std::vector<std::string> lines, std::
                 if (current_line >= end_line)
                 {
                     done = true;
-                    printf("[cycle %02d] Single Thread - FINISHED WORKLOAD\n", clock_ticks);
-                    printf("[cycle %02d] Single Thread - Total stalls = %d\n", clock_ticks, total_stalls);
+                    //printf("[cycle %02d] Single Thread - FINISHED WORKLOAD\n", clock_ticks);
+                    //printf("[cycle %02d] Single Thread - Total stalls = %d\n", clock_ticks, total_stalls);
                 }
             }
         }
