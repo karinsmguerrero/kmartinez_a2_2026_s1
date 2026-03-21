@@ -8,6 +8,7 @@
 #include "../FileManagement/FileReader.h"
 #include "../Mapper/Mapper.h"
 #include "Stalls.h"
+#include "../Utils/TopWords.h"
 
 class FineGrained
 {
@@ -28,7 +29,7 @@ public:
         std::unordered_map<std::string, int> localHashMap;
         int seed;
     };
-    
+
     static void *map(void *arg);
     int runMapReduce(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed);
 };

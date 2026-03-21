@@ -9,7 +9,6 @@ pthread_cond_t CoarseGrained::clock_tick = PTHREAD_COND_INITIALIZER;
 int CoarseGrained::current_active_thread = 0;
 int *CoarseGrained::threads_done = nullptr;
 
-
 // Hardware scheduler: finds the next available thread
 void CoarseGrained::switch_to_next_thread()
 {
@@ -141,7 +140,7 @@ int CoarseGrained::runMapReduce(std::string filePath, int numThreads, std::unord
 
     if (!lines.empty())
     {
-        std::cout << "File read successfully. Number of lines: " << getLineCount(lines) << std::endl;
+        printf("File read successfully. Number of lines: %zu\n", getLineCount(lines));
 
         size_t totalLines = getLineCount(lines);
         pthread_t threads[numThreads];
@@ -173,7 +172,7 @@ int CoarseGrained::runMapReduce(std::string filePath, int numThreads, std::unord
         }
 
         // Reduce phase: Add the word counts
-        std::cout << "All threads have completed their workloads. Combining results..." << std::endl;
+        printf("All threads have completed their workloads. Combining results...\n");
         for (int i = 0; i < numThreads; i++)
         {
             // Do reducer work here
@@ -182,6 +181,9 @@ int CoarseGrained::runMapReduce(std::string filePath, int numThreads, std::unord
                 globalHashMap[pair.first] += pair.second; // Combine counts into the global hash map
             }
         }
+
+        printf("Top 10 most common words in %s:\n", filePath.c_str());
+        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);
 
         // Clean up thread data
         for (int i = 0; i < numThreads; i++)
@@ -192,7 +194,7 @@ int CoarseGrained::runMapReduce(std::string filePath, int numThreads, std::unord
     }
     else
     {
-        std::cout << "Failed to read file." << std::endl;
+        printf("Failed to read file.\n");
     }
 
     total_threads = 0; // Reset total threads for next run

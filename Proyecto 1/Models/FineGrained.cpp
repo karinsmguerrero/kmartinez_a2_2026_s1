@@ -113,7 +113,7 @@ int FineGrained::runMapReduce(std::string filePath, int numThreads, std::unorder
 
     if (!lines.empty())
     {
-        std::cout << "File read successfully. Number of lines: " << getLineCount(lines) << std::endl;
+        printf("File read successfully. Number of lines: %zu\n", getLineCount(lines));
 
         size_t totalLines = getLineCount(lines);
         pthread_t threads[numThreads];
@@ -145,7 +145,7 @@ int FineGrained::runMapReduce(std::string filePath, int numThreads, std::unorder
         }
 
         // Reduce phase: Add the word counts
-        std::cout << "All threads have completed their workloads. Combining results..." << std::endl;
+        printf("All threads have completed their workloads. Combining results...\n");
         for (int i = 0; i < numThreads; i++)
         {
             // Do reducer work here
@@ -154,6 +154,9 @@ int FineGrained::runMapReduce(std::string filePath, int numThreads, std::unorder
                 globalHashMap[pair.first] += pair.second; // Combine counts into the global hash map
             }
         }
+
+        printf("Top 10 most common words in %s:\n", filePath.c_str());
+        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);
 
         // Clean up thread data
         for (int i = 0; i < numThreads; i++)
@@ -164,7 +167,7 @@ int FineGrained::runMapReduce(std::string filePath, int numThreads, std::unorder
     }
     else
     {
-        std::cout << "Failed to read file." << std::endl;
+        printf("Failed to read file.\n");
     }
 
     total_threads = 0; // Reset total threads for next run

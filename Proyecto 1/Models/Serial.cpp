@@ -1,6 +1,5 @@
 #include "Serial.h"
 
-
 int Serial::runMapReduce(std::string filePath, std::unordered_map<std::string, int> &localHashMap, int seed)
 {
     int clock_ticks = 0;
@@ -9,7 +8,7 @@ int Serial::runMapReduce(std::string filePath, std::unordered_map<std::string, i
 
     if (!lines.empty())
     {
-        std::cout << "File read successfully. Number of lines: " << getLineCount(lines) << std::endl;
+        printf("File read successfully. Number of lines: %d\n", (int)getLineCount(lines));
 
         int start_line = 0;
         int end_line = lines.size();
@@ -71,10 +70,13 @@ int Serial::runMapReduce(std::string filePath, std::unordered_map<std::string, i
         // Reduce phase: Add the word counts
         // No Reduce phase needed for the serial model since we are directly updating the localHashMap in the Mapper
         // and there are no other threads to combine results with.
+
+        printf("Top 10 most common words in %s:\n", filePath.c_str());
+        printTopKWordCounts(getTopKWords(localHashMap, 10), localHashMap);
     }
     else
     {
-        std::cout << "Failed to read file." << std::endl;
+        printf("Failed to read file.\n");
     }
 
     return 0;
