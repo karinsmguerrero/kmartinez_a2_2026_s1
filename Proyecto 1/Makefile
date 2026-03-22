@@ -6,10 +6,10 @@ SRC = main.cpp FileManagement/FileReader.cpp Mapper/Mapper.cpp Models/Stalls.cpp
 Models/CoarseGrained.cpp Models/Serial.cpp Models/FineGrained.cpp Utils/TopWords.cpp 
 
 SRC_TEST = test.cpp FileManagement/FileReader.cpp Mapper/Mapper.cpp Models/Stalls.cpp \
-Models/Serial.cpp
+Models/Serial.cpp Models/FineGrained.cpp Models/CoarseGrained.cpp Utils/TopWords.cpp
 
 # Opciones de compilación
-CXXFLAGS = -Wall -Wextra -std=c++17
+CXXFLAGS = -Wall -Wextra -std=c++17 -fsanitize=address
 CXXFLAGS2 = -Wall -Wextra -std=c++17 -fsanitize=address -g -lmatplot
 
 # Regla por defect

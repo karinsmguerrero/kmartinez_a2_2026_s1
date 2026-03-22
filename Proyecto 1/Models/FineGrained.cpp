@@ -86,8 +86,8 @@ FineGrained::ThreadResults *FineGrained::map(void *arg)
                     {
                         done = true;
                         threads_completed++;
-                        printf("[cycle %02d] Thread %d: FINISHED WORKLOAD\n", global_clock, tid);
-                        printf("[cycle %02d] Thread %d: Total stalls = %d\n", global_clock, tid, total_stalls);
+                        //printf("[cycle %02d] Thread %d: FINISHED WORKLOAD\n", global_clock, tid);
+                        //printf("[cycle %02d] Thread %d: Total stalls = %d\n", global_clock, tid, total_stalls);
                     }
                 }
             }
@@ -108,6 +108,7 @@ FineGrained::ThreadResults *FineGrained::map(void *arg)
 FineGrained::ThreadResults FineGrained::runMapReduce(std::vector<std::string> lines, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
 {
     global_clock = 0;
+    threads_completed = 0;
     int total_stalls = 0;
 
     size_t totalLines = lines.size();
@@ -143,7 +144,7 @@ FineGrained::ThreadResults FineGrained::runMapReduce(std::vector<std::string> li
     }
 
     // Reduce phase: Add the word counts
-    printf("All threads have completed their workloads. Combining results...\n");
+    //printf("All threads have completed their workloads. Combining results...\n");
     for (int i = 0; i < numThreads; i++)
     {
         // Do reducer work here

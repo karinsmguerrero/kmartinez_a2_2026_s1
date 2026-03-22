@@ -41,7 +41,7 @@ public:
 
     static void switch_to_next_thread();
     static ThreadResults *map(void *arg);
-    ThreadResults runMapReduce(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed);
+    ThreadResults runMapReduce(std::vector<std::string> lines, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed);
 };
 
 #endif // COARSEGRAINED_H

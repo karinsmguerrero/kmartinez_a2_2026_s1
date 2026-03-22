@@ -1,7 +1,77 @@
 #include <cmath>
 #include <matplot/matplot.h>
-#include "Models/Serial.h"
 #include "FileManagement/FileReader.h"
+#include "Utils/TopWords.h"
+#include "Models/Serial.h"
+#include "Models/FineGrained.h"
+#include "Models/CoarseGrained.h"
+
+void serial_test(std::vector<std::string> lines, int total_runs = 100, int seed = 0)
+{
+    std::unordered_map<std::string, int> globalHashMap;
+    Serial serialModel;
+
+    std::vector<int> run_times(total_runs);
+
+    for (int i = 0; i < total_runs; i++)
+    {
+        Serial::ThreadResults serialResults = serialModel.runMapReduce(lines, globalHashMap, seed);
+        run_times[i] = serialResults.clock_ticks;
+        printf("Run %d: Clock Ticks = %d, Total Stalls = %d\n", i + 1, serialResults.clock_ticks, serialResults.total_stalls);
+        globalHashMap.clear();
+    }
+
+    // Create a histogram of run times
+    auto h = matplot::hist(run_times);
+    std::cout << "Histogram with " << h->num_bins() << " bins" << std::endl;
+    matplot::show();
+}
+
+void fine_grained_test(std::vector<std::string> lines, int numThreads, int total_runs = 100, int seed = 0)
+{
+    std::unordered_map<std::string, int> globalHashMap;
+    FineGrained fineGrainedModel;
+
+    std::vector<int> run_times(total_runs);
+
+    for (int i = 0; i < total_runs; i++)
+    {
+        FineGrained::ThreadResults fineGrainedResults = fineGrainedModel.runMapReduce(lines, numThreads, globalHashMap, seed);
+        run_times[i] = fineGrainedResults.clock_ticks;
+        printf("Run %d: Clock Ticks = %d, Total Stalls = %d\n", i + 1, fineGrainedResults.clock_ticks, fineGrainedResults.total_stalls);
+        /*if (i == 0 || i == total_runs - 1) // Print top words for the first and last run to verify results
+        {
+            printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);
+        }*/
+        globalHashMap.clear();
+    }
+
+    // Create a histogram of run times
+    auto h = matplot::hist(run_times);
+    std::cout << "Histogram with " << h->num_bins() << " bins" << std::endl;
+    matplot::show();
+}
+
+void coarse_grained_test(std::vector<std::string> lines, int numThreads, int total_runs = 100, int seed = 0)
+{
+    std::unordered_map<std::string, int> globalHashMap;
+    CoarseGrained coarseGrainedModel;
+
+    std::vector<int> run_times(total_runs);
+
+    for (int i = 0; i < total_runs; i++)
+    {
+        CoarseGrained::ThreadResults coarseGrainedResults = coarseGrainedModel.runMapReduce(lines, numThreads, globalHashMap, seed);
+        run_times[i] = coarseGrainedResults.clock_ticks;
+        printf("Run %d: Clock Ticks = %d, Total Stalls = %d\n", i + 1, coarseGrainedResults.clock_ticks, coarseGrainedResults.total_stalls);
+        globalHashMap.clear();
+    }
+
+    // Create a histogram of run times
+    auto h = matplot::hist(run_times);
+    std::cout << "Histogram with " << h->num_bins() << " bins" << std::endl;
+    matplot::show();
+}
 
 int main()
 {
@@ -20,24 +90,11 @@ int main()
     if (!lines.empty())
     {
         printf("File read successfully. Number of lines: %d\n", (int)getLineCount(lines));
-        std::unordered_map<std::string, int> globalHashMap;
-        Serial serialModel;
         int numThreads = 4;
         int total_runs = 100;
-        std::vector<int> run_times(total_runs);
-
-        for (int i = 0; i < total_runs; i++)
-        {
-            Serial::ThreadResults serialResults = serialModel.runMapReduce(lines, globalHashMap, seed);
-            run_times[i] = serialResults.clock_ticks;
-            printf("Run %d: Clock Ticks = %d, Total Stalls = %d\n", i + 1, serialResults.clock_ticks, serialResults.total_stalls);
-            globalHashMap.clear(); // Clear global hash map for next runs
-        }
-
-        auto h = matplot::hist(run_times);
-        std::cout << "Histogram with " << h->num_bins() << " bins" << std::endl;
-
-        matplot::show();
+        //serial_test(lines, total_runs, seed);
+        //fine_grained_test(lines, numThreads, total_runs, seed);
+        coarse_grained_test(lines, numThreads, total_runs, seed);
     }
     else
     {
