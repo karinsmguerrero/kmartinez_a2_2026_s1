@@ -9,7 +9,6 @@ pthread_cond_t CoarseGrained::clock_tick = PTHREAD_COND_INITIALIZER;
 int CoarseGrained::current_active_thread = 0;
 int *CoarseGrained::threads_done = nullptr;
 
-
 // Hardware scheduler: finds the next available thread
 void CoarseGrained::switch_to_next_thread()
 {
@@ -23,7 +22,7 @@ void CoarseGrained::switch_to_next_thread()
 }
 
 // Map function for each thread
-void *CoarseGrained::map(void *arg)
+CoarseGrained::ThreadResults *CoarseGrained::map(void *arg)
 {
     ThreadData *data = static_cast<ThreadData *>(arg);
     int tid = data->thread_id;
@@ -111,8 +110,8 @@ void *CoarseGrained::map(void *arg)
                         done = true;
                         threads_completed++;
                         threads_done[tid] = 1; // Mark this thread as done for the scheduler
-                        printf("[cycle %02d] Thread %d: FINISHED WORKLOAD\n", global_clock, tid);
-                        printf("[cycle %02d] Thread %d: Total stalls = %d\n", global_clock, tid, total_stalls);
+                        //printf("[cycle %02d] Thread %d: FINISHED WORKLOAD\n", global_clock, tid);
+                        //printf("[cycle %02d] Thread %d: Total stalls = %d\n", global_clock, tid, total_stalls);
                         CoarseGrained::switch_to_next_thread(); // Move to the next thread immediately after finishing
                     }
                 }
@@ -128,73 +127,68 @@ void *CoarseGrained::map(void *arg)
         pthread_cond_broadcast(&clock_tick);
         pthread_mutex_unlock(&pipeline_mutex);
     }
-    return NULL;
+    return new ThreadResults{global_clock, total_stalls};
 }
 
 // Function to run the MapReduce process using the Coarse Grained Multithreading model
-int CoarseGrained::runMapReduce(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
+CoarseGrained::ThreadResults CoarseGrained::runMapReduce(std::vector<std::string> lines, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
 {
     global_clock = 0;
+    threads_completed = 0;
+    current_active_thread = 0;
+    int total_stalls = 0;
     threads_done = new int[numThreads](); // Initialize thread done array based on number of threads
-    // Read file and get lines
-    std::vector<std::string> lines = readFileToLines(filePath);
 
-    if (!lines.empty())
+    size_t totalLines = lines.size();
+    pthread_t threads[numThreads];
+    int chunkSize = (totalLines + numThreads - 1) / numThreads;
+    total_threads = numThreads;
+    ThreadData **threadDataArray = new ThreadData *[numThreads]; // Array to hold thread data pointers
+
+    // Map phase: Process the chunk of text and count word occurrences
+    for (int i = 0; i < numThreads; ++i)
     {
-        std::cout << "File read successfully. Number of lines: " << getLineCount(lines) << std::endl;
+        size_t start = i * chunkSize;
+        size_t end = std::min(start + chunkSize, totalLines);
+        std::vector<std::string> textChunk(lines.begin() + start, lines.begin() + end);
 
-        size_t totalLines = getLineCount(lines);
-        pthread_t threads[numThreads];
-        int chunkSize = (getLineCount(lines) + numThreads - 1) / numThreads;
-        total_threads = numThreads;
-        ThreadData **threadDataArray = new ThreadData *[numThreads]; // Array to hold thread data pointers
+        ThreadData *data = new ThreadData;
+        data->thread_id = i;
+        data->text_chunk = textChunk;
+        data->chunk_size = chunkSize;
+        data->localHashMap = std::unordered_map<std::string, int>();
+        data->seed = seed + i;
+        threadDataArray[i] = data; // Store pointer to thread data
 
-        // Map phase: Process the chunk of text and count word occurrences
-        for (int i = 0; i < numThreads; ++i)
-        {
-            size_t start = i * chunkSize;
-            size_t end = std::min(start + chunkSize, totalLines);
-            std::vector<std::string> textChunk(lines.begin() + start, lines.begin() + end);
-
-            ThreadData *data = new ThreadData;
-            data->thread_id = i;
-            data->text_chunk = textChunk;
-            data->chunk_size = chunkSize;
-            data->localHashMap = std::unordered_map<std::string, int>();
-            data->seed = seed + i;
-            threadDataArray[i] = data; // Store pointer to thread data
-
-            pthread_create(&threads[i], NULL, &CoarseGrained::map, data);
-        }
-
-        for (int i = 0; i < numThreads; i++)
-        {
-            pthread_join(threads[i], NULL);
-        }
-
-        // Reduce phase: Add the word counts
-        std::cout << "All threads have completed their workloads. Combining results..." << std::endl;
-        for (int i = 0; i < numThreads; i++)
-        {
-            // Do reducer work here
-            for (const auto &pair : threadDataArray[i]->localHashMap)
-            {
-                globalHashMap[pair.first] += pair.second; // Combine counts into the global hash map
-            }
-        }
-
-        // Clean up thread data
-        for (int i = 0; i < numThreads; i++)
-        {
-            delete threadDataArray[i];
-        }
-        delete[] threadDataArray;
-    }
-    else
-    {
-        std::cout << "Failed to read file." << std::endl;
+        pthread_create(&threads[i], NULL, (void *(*)(void *)) & CoarseGrained::map, data);
     }
 
-    total_threads = 0; // Reset total threads for next run
-    return 0;
+    for (int i = 0; i < numThreads; i++)
+    {
+        ThreadResults *result;
+        pthread_join(threads[i], (void **)&result);
+        total_stalls += result->total_stalls;
+        delete result;
+    }
+
+    // Reduce phase: Add the word counts
+    //printf("All threads have completed their workloads. Combining results...\n");
+    for (int i = 0; i < numThreads; i++)
+    {
+        // Do reducer work here
+        for (const auto &pair : threadDataArray[i]->localHashMap)
+        {
+            globalHashMap[pair.first] += pair.second; // Combine counts into the global hash map
+        }
+    }
+
+    // Clean up thread data
+    for (int i = 0; i < numThreads; i++)
+    {
+        delete threadDataArray[i];
+    }
+    delete[] threadDataArray;
+
+    delete[] threads_done;
+    return ThreadResults{global_clock, total_stalls};
 }

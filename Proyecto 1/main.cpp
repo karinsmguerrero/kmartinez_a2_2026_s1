@@ -1,44 +1,13 @@
 #include <iostream>
-#include <string>
-#include <algorithm>
+
 #include "Models/Serial.h"
 #include "Models/FineGrained.h"
 #include "Models/CoarseGrained.h"
-
-std::vector<std::string> getTopKWords(const std::unordered_map<std::string, int> &wordCounts, size_t k)
-{
-    // Create a vector of pairs from the unordered_map
-    std::vector<std::pair<std::string, int>> wordCountVector(wordCounts.begin(), wordCounts.end());
-
-    // Sort the vector based on the counts in descending order
-    std::sort(wordCountVector.begin(), wordCountVector.end(),
-              [](const std::pair<std::string, int> &a, const std::pair<std::string, int> &b)
-              {
-                  return b.second < a.second;
-              });
-
-    // Extract the top k words
-    std::vector<std::string> topKWords;
-    for (size_t i = 0; i < std::min(k, wordCountVector.size()); ++i)
-    {
-        topKWords.push_back(wordCountVector[i].first);
-    }
-
-    return topKWords;
-}
-
-void printTopKWordCounts(std::vector<std::string> topKWords, const std::unordered_map<std::string, int> &hashMap)
-{
-    // Function to print the word counts
-    for (const auto &word : topKWords)
-    {
-        std::cout << word << ": " << hashMap.at(word) << std::endl;
-    }
-}
+#include "Utils/TopWords.h"
 
 int main()
 {
-    std::vector<std::string> files = {
+    std::string files[] = {
         "Assets/conde.txt",
         "Assets/fellowship.txt",
         "Assets/In Search of Lost Time.txt"};
@@ -65,34 +34,46 @@ int main()
     {
         std::cout << "------------ Running Serial Model on " << files[fileChoice - 1] << "------------ " << std::endl;
         std::unordered_map<std::string, int> globalHashMap;
-
-        Serial serialModel;
-        serialModel.runMapReduce(files[fileChoice - 1], globalHashMap, seed);
-
-        std::cout << "Top 10 most common words in " << files[fileChoice - 1] << ":" << std::endl;        
-        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap); 
+        std::vector<std::string> lines = readFileToLines(files[fileChoice - 1]);
+        if (!lines.empty())
+        {
+            Serial serialModel;
+            serialModel.runMapReduce(lines, globalHashMap, seed);
+            printf("Top 10 most common words in %s:\n", files[fileChoice - 1].c_str());
+            printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);
+        }
+        else
+        {
+            printf("Failed to read file.\n");
+        }
     }
     else if (modelChoice == 2)
     {
         std::cout << "------------ Running Parallel Fine Grained Model on " << files[fileChoice - 1] << "------------ " << std::endl;
-        std::unordered_map<std::string, int> globalHashMap;  
-
-        FineGrained fineGrainedModel;
-        fineGrainedModel.runMapReduce(files[fileChoice - 1], 4, globalHashMap, seed);
-        
-        std::cout << "Top 10 most common words in " << files[fileChoice - 1] << ":" << std::endl;
-        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap); 
+        std::unordered_map<std::string, int> globalHashMap;
+        std::vector<std::string> lines = readFileToLines(files[fileChoice - 1]);
+        if (!lines.empty())
+        {
+            FineGrained fineGrainedModel;
+            fineGrainedModel.runMapReduce(lines, 4, globalHashMap, seed);
+            printf("Top 10 most common words in %s:\n", files[fileChoice - 1].c_str());
+            printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);
+        }
+        else
+        {
+            printf("Failed to read file.\n");
+        }
     }
     else if (modelChoice == 3)
     {
         std::cout << "------------ Running Parallel Coarse Grained Model on " << files[fileChoice - 1] << "------------ " << std::endl;
-        std::unordered_map<std::string, int> globalHashMap;  
+        std::unordered_map<std::string, int> globalHashMap;
 
         CoarseGrained coarseGrainedModel;
         coarseGrainedModel.runMapReduce(files[fileChoice - 1], 4, globalHashMap, seed);
-        
-        std::cout << "Top 10 most common words in " << files[fileChoice - 1] << ":" << std::endl;
-        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap); 
+
+        printf("Top 10 most common words in %s:\n", files[fileChoice - 1].c_str());
+        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);
     }
     else
     {

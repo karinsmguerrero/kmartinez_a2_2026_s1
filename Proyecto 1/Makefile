@@ -2,12 +2,17 @@
 TARGET = main
 
 # Archivos fuente
-SRC = main.cpp FileManagement/FileReader.cpp Mapper/Mapper.cpp Models/Stalls.cpp Models/CoarseGrained.cpp Models/Serial.cpp Models/FineGrained.cpp
+SRC = main.cpp FileManagement/FileReader.cpp Mapper/Mapper.cpp Models/Stalls.cpp \
+Models/CoarseGrained.cpp Models/Serial.cpp Models/FineGrained.cpp Utils/TopWords.cpp 
+
+SRC_TEST = test.cpp FileManagement/FileReader.cpp Mapper/Mapper.cpp Models/Stalls.cpp \
+Models/Serial.cpp Models/FineGrained.cpp Models/CoarseGrained.cpp Utils/TopWords.cpp
 
 # Opciones de compilación
-CXXFLAGS = -Wall -Wextra -std=c++11
+CXXFLAGS = -Wall -Wextra -std=c++17 
+CXXFLAGS2 = -Wall -Wextra -std=c++17 -fsanitize=address -g -lmatplot
 
-# Regla por defecto
+# Regla por defect
 all: $(TARGET)
 
 # Regla para compilar el ejecutable
@@ -17,10 +22,16 @@ $(TARGET): $(SRC)
 
 # Regla para ejecutar el programa
 run: $(TARGET)
-	@echo "Running $(TARGET)..."
+	@echo "Running $(TARGET)..." 
 	@./build/$(TARGET)
+
+# Compile and run test.cpp
+run-test: 
+	@echo "Compiling and running test.cpp..."
+	@g++ -o build/test $(SRC_TEST) $(CXXFLAGS2) 
+	@./build/test
 
 # Limpieza de archivos generados
 clean:
 	@echo "Cleaning up..."
-	@rm -f build/$(TARGET) *.o
+	@rm -f build/$(TARGET) build/test *.o

@@ -7,7 +7,7 @@ int FineGrained::total_threads = 0;     // Total number of threads to be used
 pthread_mutex_t FineGrained::pipeline_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t FineGrained::clock_tick = PTHREAD_COND_INITIALIZER;
 
-void *FineGrained::map(void *arg)
+FineGrained::ThreadResults *FineGrained::map(void *arg)
 {
     ThreadData *data = static_cast<ThreadData *>(arg);
     int tid = data->thread_id;
@@ -86,8 +86,8 @@ void *FineGrained::map(void *arg)
                     {
                         done = true;
                         threads_completed++;
-                        printf("[cycle %02d] Thread %d: FINISHED WORKLOAD\n", global_clock, tid);
-                        printf("[cycle %02d] Thread %d: Total stalls = %d\n", global_clock, tid, total_stalls);
+                        //printf("[cycle %02d] Thread %d: FINISHED WORKLOAD\n", global_clock, tid);
+                        //printf("[cycle %02d] Thread %d: Total stalls = %d\n", global_clock, tid, total_stalls);
                     }
                 }
             }
@@ -102,71 +102,64 @@ void *FineGrained::map(void *arg)
         pthread_cond_broadcast(&clock_tick);
         pthread_mutex_unlock(&pipeline_mutex);
     }
-    return NULL;
+    return new ThreadResults{global_clock, total_stalls};
 }
 
-int FineGrained::runMapReduce(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
+FineGrained::ThreadResults FineGrained::runMapReduce(std::vector<std::string> lines, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
 {
     global_clock = 0;
-    // Read file and get lines
-    std::vector<std::string> lines = readFileToLines(filePath);
+    threads_completed = 0;
+    int total_stalls = 0;
 
-    if (!lines.empty())
+    size_t totalLines = lines.size();
+    pthread_t threads[numThreads];
+    int chunkSize = (totalLines + numThreads - 1) / numThreads;
+    total_threads = numThreads;
+    ThreadData **threadDataArray = new ThreadData *[numThreads]; // Array to hold thread data pointers
+
+    // Map phase: Process the chunk of text and count word occurrences
+    for (int i = 0; i < numThreads; ++i)
     {
-        std::cout << "File read successfully. Number of lines: " << getLineCount(lines) << std::endl;
+        size_t start = i * chunkSize;
+        size_t end = std::min(start + chunkSize, totalLines);
+        std::vector<std::string> textChunk(lines.begin() + start, lines.begin() + end);
 
-        size_t totalLines = getLineCount(lines);
-        pthread_t threads[numThreads];
-        int chunkSize = (getLineCount(lines) + numThreads - 1) / numThreads;
-        total_threads = numThreads;
-        ThreadData **threadDataArray = new ThreadData *[numThreads]; // Array to hold thread data pointers
+        ThreadData *data = new ThreadData;
+        data->thread_id = i;
+        data->text_chunk = textChunk;
+        data->chunk_size = chunkSize;
+        data->localHashMap = std::unordered_map<std::string, int>();
+        data->seed = seed + i;
+        threadDataArray[i] = data; // Store pointer to thread data
 
-        // Map phase: Process the chunk of text and count word occurrences
-        for (int i = 0; i < numThreads; ++i)
-        {
-            size_t start = i * chunkSize;
-            size_t end = std::min(start + chunkSize, totalLines);
-            std::vector<std::string> textChunk(lines.begin() + start, lines.begin() + end);
-
-            ThreadData *data = new ThreadData;
-            data->thread_id = i;
-            data->text_chunk = textChunk;
-            data->chunk_size = chunkSize;
-            data->localHashMap = std::unordered_map<std::string, int>();
-            data->seed = seed + i;
-            threadDataArray[i] = data; // Store pointer to thread data
-
-            pthread_create(&threads[i], NULL, map, data);
-        }
-
-        for (int i = 0; i < numThreads; i++)
-        {
-            pthread_join(threads[i], NULL);
-        }
-
-        // Reduce phase: Add the word counts
-        std::cout << "All threads have completed their workloads. Combining results..." << std::endl;
-        for (int i = 0; i < numThreads; i++)
-        {
-            // Do reducer work here
-            for (const auto &pair : threadDataArray[i]->localHashMap)
-            {
-                globalHashMap[pair.first] += pair.second; // Combine counts into the global hash map
-            }
-        }
-
-        // Clean up thread data
-        for (int i = 0; i < numThreads; i++)
-        {
-            delete threadDataArray[i];
-        }
-        delete[] threadDataArray;
-    }
-    else
-    {
-        std::cout << "Failed to read file." << std::endl;
+        pthread_create(&threads[i], NULL, (void *(*)(void *))map, data);
     }
 
-    total_threads = 0; // Reset total threads for next run
-    return 0;
+    for (int i = 0; i < numThreads; i++)
+    {
+        ThreadResults *result;
+        pthread_join(threads[i], (void **)&result);
+        total_stalls += result->total_stalls;
+        delete result;
+    }
+
+    // Reduce phase: Add the word counts
+    //printf("All threads have completed their workloads. Combining results...\n");
+    for (int i = 0; i < numThreads; i++)
+    {
+        // Do reducer work here
+        for (const auto &pair : threadDataArray[i]->localHashMap)
+        {
+            globalHashMap[pair.first] += pair.second; // Combine counts into the global hash map
+        }
+    }
+
+    // Clean up thread data
+    for (int i = 0; i < numThreads; i++)
+    {
+        delete threadDataArray[i];
+    }
+    delete[] threadDataArray;
+
+    return ThreadResults{global_clock, total_stalls};
 }

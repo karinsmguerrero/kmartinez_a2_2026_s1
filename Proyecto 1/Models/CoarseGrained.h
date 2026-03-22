@@ -33,10 +33,15 @@ public:
         int seed;
     };
 
-    static void switch_to_next_thread();
-    static void *map(void *arg);
-    int runMapReduce(std::string filePath, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed);   
+    struct ThreadResults
+    {
+        int clock_ticks;
+        int total_stalls;
+    };
 
+    static void switch_to_next_thread();
+    static ThreadResults *map(void *arg);
+    ThreadResults runMapReduce(std::vector<std::string> lines, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed);
 };
 
 #endif // COARSEGRAINED_H
