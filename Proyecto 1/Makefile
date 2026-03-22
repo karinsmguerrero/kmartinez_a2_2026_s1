@@ -9,7 +9,7 @@ SRC_TEST = test.cpp FileManagement/FileReader.cpp Mapper/Mapper.cpp Models/Stall
 Models/Serial.cpp Models/FineGrained.cpp Models/CoarseGrained.cpp Utils/TopWords.cpp
 
 # Opciones de compilación
-CXXFLAGS = -Wall -Wextra -std=c++17 -fsanitize=address
+CXXFLAGS = -Wall -Wextra -std=c++17 
 CXXFLAGS2 = -Wall -Wextra -std=c++17 -fsanitize=address -g -lmatplot
 
 # Regla por defect
@@ -28,10 +28,10 @@ run: $(TARGET)
 # Compile and run test.cpp
 run-test: 
 	@echo "Compiling and running test.cpp..."
-	@g++ -o test $(SRC_TEST) $(CXXFLAGS2) 
-	@./test
+	@g++ -o build/test $(SRC_TEST) $(CXXFLAGS2) 
+	@./build/test
 
 # Limpieza de archivos generados
 clean:
 	@echo "Cleaning up..."
-	@rm -f build/$(TARGET) test *.o
+	@rm -f build/$(TARGET) build/test *.o
