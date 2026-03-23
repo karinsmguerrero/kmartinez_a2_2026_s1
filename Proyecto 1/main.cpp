@@ -68,9 +68,10 @@ int main()
     {
         std::cout << "------------ Running Parallel Coarse Grained Model on " << files[fileChoice - 1] << "------------ " << std::endl;
         std::unordered_map<std::string, int> globalHashMap;
+        std::vector<std::string> lines = readFileToLines(files[fileChoice - 1]);
 
         CoarseGrained coarseGrainedModel;
-        coarseGrainedModel.runMapReduce(files[fileChoice - 1], 4, globalHashMap, seed);
+        coarseGrainedModel.runMapReduce(lines, 4, globalHashMap, seed);
 
         printf("Top 10 most common words in %s:\n", files[fileChoice - 1].c_str());
         printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);

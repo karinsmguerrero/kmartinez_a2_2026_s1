@@ -22,7 +22,7 @@ void CoarseGrained::switch_to_next_thread()
 }
 
 // Map function for each thread
-CoarseGrained::ThreadResults *CoarseGrained::map(void *arg)
+ThreadResults *CoarseGrained::map(void *arg)
 {
     ThreadData *data = static_cast<ThreadData *>(arg);
     int tid = data->thread_id;
@@ -110,8 +110,8 @@ CoarseGrained::ThreadResults *CoarseGrained::map(void *arg)
                         done = true;
                         threads_completed++;
                         threads_done[tid] = 1; // Mark this thread as done for the scheduler
-                        //printf("[cycle %02d] Thread %d: FINISHED WORKLOAD\n", global_clock, tid);
-                        //printf("[cycle %02d] Thread %d: Total stalls = %d\n", global_clock, tid, total_stalls);
+                        // printf("[cycle %02d] Thread %d: FINISHED WORKLOAD\n", global_clock, tid);
+                        // printf("[cycle %02d] Thread %d: Total stalls = %d\n", global_clock, tid, total_stalls);
                         CoarseGrained::switch_to_next_thread(); // Move to the next thread immediately after finishing
                     }
                 }
@@ -131,7 +131,7 @@ CoarseGrained::ThreadResults *CoarseGrained::map(void *arg)
 }
 
 // Function to run the MapReduce process using the Coarse Grained Multithreading model
-CoarseGrained::ThreadResults CoarseGrained::runMapReduce(std::vector<std::string> lines, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
+ThreadResults CoarseGrained::runMapReduce(std::vector<std::string> lines, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
 {
     global_clock = 0;
     threads_completed = 0;
@@ -172,15 +172,8 @@ CoarseGrained::ThreadResults CoarseGrained::runMapReduce(std::vector<std::string
     }
 
     // Reduce phase: Add the word counts
-    //printf("All threads have completed their workloads. Combining results...\n");
-    for (int i = 0; i < numThreads; i++)
-    {
-        // Do reducer work here
-        for (const auto &pair : threadDataArray[i]->localHashMap)
-        {
-            globalHashMap[pair.first] += pair.second; // Combine counts into the global hash map
-        }
-    }
+    // printf("All threads have completed their workloads. Combining results...\n");
+    reduce(globalHashMap, threadDataArray, numThreads);
 
     // Clean up thread data
     for (int i = 0; i < numThreads; i++)

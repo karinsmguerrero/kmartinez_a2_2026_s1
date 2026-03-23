@@ -3,10 +3,12 @@ TARGET = main
 
 # Archivos fuente
 SRC = main.cpp FileManagement/FileReader.cpp Mapper/Mapper.cpp Models/Stalls.cpp \
-Models/CoarseGrained.cpp Models/Serial.cpp Models/FineGrained.cpp Utils/TopWords.cpp 
+Models/CoarseGrained.cpp Models/Serial.cpp Models/FineGrained.cpp Utils/TopWords.cpp \
+Reducer/Reducer.cpp
 
 SRC_TEST = test.cpp FileManagement/FileReader.cpp Mapper/Mapper.cpp Models/Stalls.cpp \
-Models/Serial.cpp Models/FineGrained.cpp Models/CoarseGrained.cpp Utils/TopWords.cpp
+Models/Serial.cpp Models/FineGrained.cpp Models/CoarseGrained.cpp Utils/TopWords.cpp \
+Reducer/Reducer.cpp
 
 # Opciones de compilación
 CXXFLAGS = -Wall -Wextra -std=c++17 

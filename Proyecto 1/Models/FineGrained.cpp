@@ -7,7 +7,7 @@ int FineGrained::total_threads = 0;     // Total number of threads to be used
 pthread_mutex_t FineGrained::pipeline_mutex = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t FineGrained::clock_tick = PTHREAD_COND_INITIALIZER;
 
-FineGrained::ThreadResults *FineGrained::map(void *arg)
+ThreadResults *FineGrained::map(void *arg)
 {
     ThreadData *data = static_cast<ThreadData *>(arg);
     int tid = data->thread_id;
@@ -105,7 +105,7 @@ FineGrained::ThreadResults *FineGrained::map(void *arg)
     return new ThreadResults{global_clock, total_stalls};
 }
 
-FineGrained::ThreadResults FineGrained::runMapReduce(std::vector<std::string> lines, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
+ThreadResults FineGrained::runMapReduce(std::vector<std::string> lines, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
 {
     global_clock = 0;
     threads_completed = 0;
@@ -145,14 +145,8 @@ FineGrained::ThreadResults FineGrained::runMapReduce(std::vector<std::string> li
 
     // Reduce phase: Add the word counts
     //printf("All threads have completed their workloads. Combining results...\n");
-    for (int i = 0; i < numThreads; i++)
-    {
-        // Do reducer work here
-        for (const auto &pair : threadDataArray[i]->localHashMap)
-        {
-            globalHashMap[pair.first] += pair.second; // Combine counts into the global hash map
-        }
-    }
+
+    reduce(globalHashMap, threadDataArray, numThreads);
 
     // Clean up thread data
     for (int i = 0; i < numThreads; i++)
