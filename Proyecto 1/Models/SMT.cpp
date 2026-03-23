@@ -1,20 +1,27 @@
 #include "SMT.h"
 
 // Code taken from: https://drive.google.com/drive/u/0/folders/1HTw9X3Gxheg50MeacS2Fa3ahSFxTGFie
-// Funcrion to bind a thread to a specific CPU core (for SMT simulation)
-void bind_thread_to_cpu(int cpu_id) {
+// Function to bind a thread to a specific CPU core (for SMT simulation)
+void bind_thread_to_cpu(int cpu_id)
+{
     cpu_set_t cpuset;
     CPU_ZERO(&cpuset);
     CPU_SET(cpu_id, &cpuset);
-    if (pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset) != 0) {
+    if (pthread_setaffinity_np(pthread_self(), sizeof(cpu_set_t), &cpuset) != 0)
+    {
         std::cerr << "Failed to set affinity to CPU " << cpu_id << std::endl;
     }
 }
 
-SMT::ThreadResults *SMT::map(void *arg) {
+void *SMT::map(void *arg)
+{
+    ThreadData *data = static_cast<ThreadData *>(arg);
+    bind_thread_to_cpu(0); // Bind all threads to the same CPU core
+    processTextChunk(data->text_chunk, data->localHashMap);
+    return nullptr;  
 }
 
-SMT::ThreadResults SMT::runMapReduce(std::vector<std::string> lines, int numThreads, std::unordered_map<std::string, int> &globalHashMap, int seed)
+ThreadResults SMT::runMapReduce(std::vector<std::string> lines, int numThreads, std::unordered_map<std::string, int> &globalHashMap)
 {
     size_t totalLines = lines.size();
     pthread_t threads[numThreads];
@@ -29,25 +36,23 @@ SMT::ThreadResults SMT::runMapReduce(std::vector<std::string> lines, int numThre
         std::vector<std::string> textChunk(lines.begin() + start, lines.begin() + end);
 
         ThreadData *data = new ThreadData;
-        data->thread_id = i;
         data->text_chunk = textChunk;
-        data->chunk_size = chunkSize;
         data->localHashMap = std::unordered_map<std::string, int>();
-        data->seed = seed + i;
         threadDataArray[i] = data; // Store pointer to thread data
 
-        pthread_create(&threads[i], NULL, (void *(*)(void *))map, data);
+        if(pthread_create(&threads[i], NULL, (void *(*)(void *))map, data) != 0)
+        {
+            std::cerr << "Failed to create thread " << i << std::endl;
+        }
     }
 
     for (int i = 0; i < numThreads; i++)
     {
-        ThreadResults *result;
-        pthread_join(threads[i], (void **)&result);
-        delete result;
+        pthread_join(threads[i], NULL);
     }
 
     // Reduce phase: Add the word counts
-
+    reduce(globalHashMap, threadDataArray, numThreads);
 
     // Clean up thread data
     for (int i = 0; i < numThreads; i++)
