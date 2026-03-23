@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <string>
-#include <algorithm>
 #include "../Mapper/Mapper.h"
 #include "Stalls.h"
 
