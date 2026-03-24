@@ -1,11 +1,11 @@
 #include <cmath>
 #include <matplot/matplot.h>
-#include "FileManagement/FileReader.h"
-#include "Utils/TopWords.h"
-#include "Models/Serial.h"
-#include "Models/FineGrained.h"
-#include "Models/CoarseGrained.h"
-#include "Models/SMT.h"
+#include "../FileManagement/FileReader.h"
+#include "../Utils/TopWords.h"
+#include "../Models/Serial.h"
+#include "../Models/FineGrained.h"
+#include "../Models/CoarseGrained.h"
+#include "../Models/SMT.h"
 
 void serial_test(std::vector<std::string> lines, int total_runs = 100, int seed = 0)
 {
@@ -115,10 +115,10 @@ int main()
         printf("File read successfully. Number of lines: %d\n", (int)getLineCount(lines));
         int numThreads = 10;
         int total_runs = 100;
-        //serial_test(lines, total_runs, seed);
+        serial_test(lines, total_runs, seed);
         //fine_grained_test(lines, numThreads, total_runs, seed);
         //coarse_grained_test(lines, numThreads, total_runs, seed);
-        SMT_test(lines, numThreads, total_runs);
+        //SMT_test(lines, numThreads, total_runs);
     }
     else
     {

@@ -1,11 +1,11 @@
 #include <iostream>
 
-#include "Models/Serial.h"
-#include "Models/FineGrained.h"
-#include "Models/CoarseGrained.h"
-#include "Models/SMT.h"
-#include "Models/CMP.h"
-#include "Utils/TopWords.h"
+#include "../Models/Serial.h"
+#include "../Models/FineGrained.h"
+#include "../Models/CoarseGrained.h"
+#include "../Models/SMT.h"
+#include "../Models/CMP.h"
+#include "../Utils/TopWords.h"
 
 int main()
 {
