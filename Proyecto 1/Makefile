@@ -29,7 +29,7 @@ $(TARGET): $(SRC)
 	@echo "Compiling $(TARGET)..."
 	@g++ -o build/$(TARGET) $(SRC) $(CXXFLAGS)
 
-# Regla para ejecutar el programa
+# Compile and run the main executable with all models
 run: $(TARGET)
 	@echo "Running $(TARGET)..." 
 	@./build/$(TARGET)
@@ -44,7 +44,13 @@ run-histogram: $(SRC_HIST)
 run-smt: $(SRC_SMT)
 	@echo "Compiling and running test_smt.cpp..."
 	@g++ -o build/$(TARGET_SMT) $(SRC_SMT) $(CXXFLAGS) 
-	@./build/$(TARGET_SMT)
+	@./build/$(TARGET_SMT) $(NUM_THREADS)
+
+# Run perf on test_smt.cpp 
+# make perf-smt NUM_THREADS=2
+perf-smt:
+	@echo "Running perf on test_smt.cpp..."
+	@sudo perf stat -r 5 -d build/$(TARGET_SMT) $(NUM_THREADS) 
 
 # Limpieza de archivos generados
 clean:
