@@ -7,6 +7,8 @@ TARGET_SMT = test_smt
 
 TARGET_CMP = test_cmp
 
+TARGET_FLUSH = flush_cache
+
 # Archivos fuente
 SRC = Tests/test_all_models.cpp FileManagement/FileReader.cpp Mapper/Mapper.cpp Models/Stalls.cpp \
 Models/CoarseGrained.cpp Models/Serial.cpp Models/FineGrained.cpp Utils/TopWords.cpp \
@@ -21,6 +23,8 @@ Utils/TopWords.cpp Reducer/Reducer.cpp Models/SMT.cpp
 
 SRC_CMP = Tests/test_cmp.cpp FileManagement/FileReader.cpp Mapper/Mapper.cpp Models/Stalls.cpp \
 Utils/TopWords.cpp Reducer/Reducer.cpp Models/CMP.cpp
+
+SRC_FLUSH = Utils/FlushCache.cpp
 
 # Opciones de compilación
 CXXFLAGS = -Wall -Wextra -std=c++17
@@ -57,17 +61,27 @@ run-cmp: $(SRC_CMP)
 	@g++ -o build/$(TARGET_CMP) $(SRC_CMP) $(CXXFLAGS) 
 	@./build/$(TARGET_CMP) $(NUM_THREADS)
 
+# Clean cache after execution to prevent benchmarking fluctuations
+run-flush: $(SRC_FLUSH)
+	@echo "Compiling and running flush_cache.cpp..."
+	@g++ -o build/$(TARGET_FLUSH) $(SRC_FLUSH) $(CXXFLAGS) 
+	@./build/$(TARGET_FLUSH)
+
 # Run perf on test_smt.cpp 
 # make perf-smt NUM_THREADS=2
 perf-smt:
 	@echo "Running perf on test_smt.cpp..."
-	@sudo perf stat -r 5 -d build/$(TARGET_SMT) $(NUM_THREADS) 
+	@sudo perf stat -r 200 -o Performance_analysis/output_smt_$(NUM_THREADS).txt -d build/$(TARGET_SMT) $(NUM_THREADS) 
+	@echo 3 | sudo tee /proc/sys/vm/drop_caches
+	@./build/$(TARGET_FLUSH)
 
 # Run perf on test_cmp.cpp 
 # make perf-cmp NUM_THREADS=2
 perf-cmp:
 	@echo "Running perf on test_cmp.cpp..."
-	@sudo perf stat -r 5 -d build/$(TARGET_CMP) $(NUM_THREADS) 
+	@sudo perf stat -r 200 -o Performance_analysis/output_cmp_$(NUM_THREADS).txt -d build/$(TARGET_CMP) $(NUM_THREADS) 
+	@echo 3 | sudo tee /proc/sys/vm/drop_caches
+	@./build/$(TARGET_FLUSH)
 
 # Limpieza de archivos generados
 clean:

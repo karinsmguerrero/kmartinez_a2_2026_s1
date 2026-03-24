@@ -19,8 +19,8 @@ int main(int argc, char *argv[])
         std::unordered_map<std::string, int> globalHashMap;
         CMP cmpModel;
         cmpModel.runMapReduce(lines, numThreads, globalHashMap);
-        printf("Top 10 most common words in %s:\n", files[fileChoice - 1].c_str());
-        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);
+        //printf("Top 10 most common words in %s:\n", files[fileChoice - 1].c_str());
+        //printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);
     }
     else
     {
