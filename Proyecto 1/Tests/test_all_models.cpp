@@ -4,6 +4,7 @@
 #include "../Models/FineGrained.h"
 #include "../Models/CoarseGrained.h"
 #include "../Models/SMT.h"
+#include "../Models/CMP.h"
 #include "../Utils/TopWords.h"
 
 int main()
@@ -18,6 +19,8 @@ int main()
     std::cout << "2. Parallel Fine Grained Model" << std::endl;
     std::cout << "3. Parallel Coarse Grained Model" << std::endl;
     std::cout << "4. SMT Model" << std::endl;
+    std::cout << "5. CMP Model" << std::endl;
+
     std::cout << "Enter your choice: ";
     int modelChoice;
     std::cin >> modelChoice;
@@ -86,6 +89,18 @@ int main()
 
         SMT smtModel;
         smtModel.runMapReduce(lines, 10, globalHashMap);
+
+        printf("Top 10 most common words in %s:\n", files[fileChoice - 1].c_str());
+        printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);
+    }
+        else if (modelChoice == 5)
+    {
+        std::cout << "------------ Running CMP Model on " << files[fileChoice - 1] << "------------ " << std::endl;
+        std::unordered_map<std::string, int> globalHashMap;
+        std::vector<std::string> lines = readFileToLines(files[fileChoice - 1]);
+
+        CMP cmpModel;
+        cmpModel.runMapReduce(lines, 10, globalHashMap);
 
         printf("Top 10 most common words in %s:\n", files[fileChoice - 1].c_str());
         printTopKWordCounts(getTopKWords(globalHashMap, 10), globalHashMap);

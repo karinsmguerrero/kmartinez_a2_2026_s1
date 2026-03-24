@@ -8,7 +8,7 @@ TARGET_SMT = test_smt
 # Archivos fuente
 SRC = Tests/test_all_models.cpp FileManagement/FileReader.cpp Mapper/Mapper.cpp Models/Stalls.cpp \
 Models/CoarseGrained.cpp Models/Serial.cpp Models/FineGrained.cpp Utils/TopWords.cpp \
-Reducer/Reducer.cpp Models/SMT.cpp
+Reducer/Reducer.cpp Models/SMT.cpp Models/CMP.cpp
 
 SRC_HIST = Tests/test_with_histogram.cpp FileManagement/FileReader.cpp Mapper/Mapper.cpp Models/Stalls.cpp \
 Models/Serial.cpp Models/FineGrained.cpp Models/CoarseGrained.cpp Utils/TopWords.cpp \
