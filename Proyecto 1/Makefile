@@ -87,3 +87,6 @@ perf-cmp:
 clean:
 	@echo "Cleaning up..."
 	@rm -f build/$(TARGET) build/$(TARGET_HIST) build/$(TARGET_SMT) build/$(TARGET_CMP) *.o
+
+#cache-misses cpu-cycles context-switches 
+# sudo perf stat -r 10 -e cache-misses,cpu-cycles,context-switches -o Performance_analysis/output_smt_3.txt -d build/test_smt 3

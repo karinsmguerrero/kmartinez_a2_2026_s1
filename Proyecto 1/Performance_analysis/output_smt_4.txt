@@ -1,0 +1,13 @@
+# started on Tue Mar 24 17:12:08 2026
+
+
+ Performance counter stats for 'build/test_smt 4' (10 runs):
+
+           726.233      cache-misses                                                            ( +-  3,29% )
+       292.474.657      cpu-cycles                                                              ( +-  1,75% )
+                 7      context-switches                                                        ( +- 17,17% )
+       220.643.437      L1-dcache-loads                                                         ( +-  0,05% )
+         1.891.261      L1-dcache-load-misses            #    0,86% of all L1-dcache accesses   ( +-  1,22% )
+
+           0,07029 +- 0,00125 seconds time elapsed  ( +-  1,78% )
+

@@ -1,20 +1,13 @@
-# started on Tue Mar 24 15:36:32 2026
+# started on Tue Mar 24 17:10:07 2026
 
 
- Performance counter stats for 'build/test_smt 2' (200 runs):
+ Performance counter stats for 'build/test_smt 2' (10 runs):
 
-        68.496.885      task-clock                       #    0,985 CPUs utilized               ( +-  0,16% )
-                 4      context-switches                 #   58,397 /sec                        ( +-  2,76% )
-                 2      cpu-migrations                   #   29,198 /sec                        ( +-  3,95% )
-             2.595      page-faults                      #   37,885 K/sec                       ( +-  0,00% )
-       594.326.697      instructions                     #    2,07  insn per cycle            
-                                                  #    0,07  stalled cycles per insn     ( +-  0,04% )  (72,63%)
-       287.140.261      cycles                           #    4,192 GHz                         ( +-  0,16% )  (71,41%)
-        44.498.728      stalled-cycles-frontend          #   15,50% frontend cycles idle        ( +-  0,38% )  (70,02%)
-       115.628.588      branches                         #    1,688 G/sec                       ( +-  0,05% )  (70,13%)
-           980.780      branch-misses                    #    0,85% of all branches             ( +-  0,15% )  (71,65%)
-       220.970.323      L1-dcache-loads                  #    3,226 G/sec                       ( +-  0,06% )  (72,96%)
-         1.873.325      L1-dcache-load-misses            #    0,85% of all L1-dcache accesses   ( +-  0,65% )  (72,67%)
+           729.020      cache-misses                                                            ( +-  2,70% )
+       289.132.209      cpu-cycles                                                              ( +-  0,80% )
+                 5      context-switches                                                        ( +-  9,43% )
+       220.827.150      L1-dcache-loads                                                         ( +-  0,08% )
+         1.894.595      L1-dcache-load-misses            #    0,86% of all L1-dcache accesses   ( +-  1,32% )
 
-          0,069506 +- 0,000112 seconds time elapsed  ( +-  0,16% )
+          0,069443 +- 0,000481 seconds time elapsed  ( +-  0,69% )
 
