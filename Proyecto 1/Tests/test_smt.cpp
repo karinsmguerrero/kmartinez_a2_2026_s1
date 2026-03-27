@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     if (!lines.empty())
     {
         printf("File read successfully. Number of lines: %d\n", (int)getLineCount(lines));
-        int numThreads = argv[1] ? argc > 0 : 4; // Default to 4 threads if not specified
+        int numThreads = argc > 1 ? std::stoi(argv[1]) : 4; // Default to 4 threads if not specified
         std::unordered_map<std::string, int> globalHashMap;
         SMT smtModel;
         smtModel.runMapReduce(lines, numThreads, globalHashMap);

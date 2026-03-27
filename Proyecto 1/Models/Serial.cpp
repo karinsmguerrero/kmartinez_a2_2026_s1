@@ -1,6 +1,6 @@
 #include "Serial.h"
 
-Serial::ThreadResults Serial::runMapReduce(std::vector<std::string> lines, std::unordered_map<std::string, int> &localHashMap, int seed)
+ThreadResults Serial::runMapReduce(std::vector<std::string> lines, std::unordered_map<std::string, int> &localHashMap, int seed)
 {
     int clock_ticks = 0;
     int total_stalls = 0;

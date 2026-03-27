@@ -1,7 +1,7 @@
 # Nombre del ejecutable
 TARGET = main
 
-TARGET_HIST = test_histogram
+TARGET_PLOT = test_plot
 
 TARGET_SMT = test_smt
 
@@ -14,7 +14,7 @@ SRC = Tests/test_all_models.cpp FileManagement/FileReader.cpp Mapper/Mapper.cpp 
 Models/CoarseGrained.cpp Models/Serial.cpp Models/FineGrained.cpp Utils/TopWords.cpp \
 Reducer/Reducer.cpp Models/SMT.cpp Models/CMP.cpp
 
-SRC_HIST = Tests/test_with_histogram.cpp FileManagement/FileReader.cpp Mapper/Mapper.cpp Models/Stalls.cpp \
+SRC_PLOT = Tests/test_with_plots.cpp FileManagement/FileReader.cpp Mapper/Mapper.cpp Models/Stalls.cpp \
 Models/Serial.cpp Models/FineGrained.cpp Models/CoarseGrained.cpp Utils/TopWords.cpp \
 Reducer/Reducer.cpp Models/SMT.cpp
 
@@ -28,7 +28,7 @@ SRC_FLUSH = Utils/FlushCache.cpp
 
 # Opciones de compilación
 CXXFLAGS = -Wall -Wextra -std=c++17
-CXXFLAGS_HIST = -Wall -Wextra -std=c++17 -fsanitize=address -g -lmatplot
+CXXFLAGS_PLOT = -Wall -Wextra -std=c++17 -fsanitize=address -g -lmatplot
 
 # Regla por defect
 all: $(TARGET)
@@ -43,11 +43,11 @@ run: $(TARGET)
 	@echo "Running $(TARGET)..." 
 	@./build/$(TARGET)
 
-# Compile and run test_with_histogram.cpp
-run-histogram: $(SRC_HIST)
-	@echo "Compiling and running test_with_histogram.cpp..."
-	@g++ -o build/$(TARGET_HIST) $(SRC_HIST) $(CXXFLAGS_HIST) 
-	@./build/$(TARGET_HIST)
+# Compile and run test_with_histogram.cpp / make run-histogram NUM_RUNS=20
+run-plots: $(SRC_PLOT)
+	@echo "Compiling and running test_with_plots.cpp..."
+	@g++ -o build/$(TARGET_PLOT) $(SRC_PLOT) $(CXXFLAGS_PLOT) 
+	@./build/$(TARGET_PLOT) $(NUM_RUNS)
 
 # Compile and run test_smt.cpp
 run-smt: $(SRC_SMT)
@@ -71,7 +71,7 @@ run-flush: $(SRC_FLUSH)
 # make perf-smt NUM_THREADS=2
 perf-smt:
 	@echo "Running perf on test_smt.cpp..."
-	@sudo perf stat -r 200 -o Performance_analysis/output_smt_$(NUM_THREADS).txt -d build/$(TARGET_SMT) $(NUM_THREADS) 
+	@sudo perf stat -e cpu-cycles,context-switches,cache-misses,stalled-cycles-frontend -r 5 -o Performance_analysis/output_smt_$(NUM_THREADS).txt -d build/$(TARGET_SMT) $(NUM_THREADS) 
 	@echo 3 | sudo tee /proc/sys/vm/drop_caches
 	@./build/$(TARGET_FLUSH)
 

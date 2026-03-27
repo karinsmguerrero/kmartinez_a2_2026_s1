@@ -40,7 +40,7 @@ def parse_file(filepath):
 
 
 def main():
-    files = glob.glob("output_smt_*.txt")
+    files = glob.glob("/home/karina/Documentos/TEC/Arqui 2/Proyectos/Proyecto 1/Performance_analysis/output_smt_*.txt")
 
     if not files:
         print("No se encontraron archivos")
@@ -69,29 +69,32 @@ def main():
     cache_misses = [d[2] for d in data]
     time_elapsed = [d[3] for d in data]
 
-    # -------- Gráfica 1: CPU cycles --------
-    plt.figure()
-    plt.plot(threads, cycles, marker='o')
-    plt.xlabel("Número de hilos")
-    plt.ylabel("CPU Cycles")
-    plt.title("CPU Cycles vs Número de Hilos")
-    plt.grid()
+    # Crear figura con 3 subplots (3 filas, 1 columna)
+    fig, axs = plt.subplots(3, 1, figsize=(8, 12))
 
-    # -------- Gráfica 2: Cache misses --------
-    plt.figure()
-    plt.plot(threads, cache_misses, marker='o')
-    plt.xlabel("Número de hilos")
-    plt.ylabel("Cache Misses")
-    plt.title("Cache Misses vs Número de Hilos")
-    plt.grid()
+    # -------- CPU cycles --------
+    axs[0].plot(threads, cycles, marker='o')
+    axs[0].set_title("CPU Cycles vs Número de Hilos")
+    axs[0].set_xlabel("Número de hilos")
+    axs[0].set_ylabel("CPU Cycles")
+    axs[0].grid()
 
-    # -------- Gráfica 3: Tiempo --------
-    plt.figure()
-    plt.plot(threads, time_elapsed, marker='o')
-    plt.xlabel("Número de hilos")
-    plt.ylabel("Tiempo (segundos)")
-    plt.title("Tiempo vs Número de Hilos")
-    plt.grid()
+    # -------- Cache misses --------
+    axs[1].plot(threads, cache_misses, marker='o')
+    axs[1].set_title("Cache Misses vs Número de Hilos")
+    axs[1].set_xlabel("Número de hilos")
+    axs[1].set_ylabel("Cache Misses")
+    axs[1].grid()
+
+    # -------- Tiempo --------
+    axs[2].plot(threads, time_elapsed, marker='o')
+    axs[2].set_title("Tiempo vs Número de Hilos")
+    axs[2].set_xlabel("Número de hilos")
+    axs[2].set_ylabel("Tiempo (segundos)")
+    axs[2].grid()
+
+    # Ajustar espacios automáticamente
+    plt.tight_layout()
 
     plt.show()
 
