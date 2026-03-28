@@ -1,0 +1,14 @@
+# started on Fri Mar 27 18:39:31 2026
+
+
+ Performance counter stats for 'build/test_cmp 2' (200 runs):
+
+     1.743.586.972      cpu-cycles                                                              ( +-  0,13% )
+                12      context-switches                                                        ( +-  3,38% )
+         3.677.619      cache-misses                                                            ( +-  0,35% )
+       247.604.014      stalled-cycles-frontend          #   14,20% frontend cycles idle        ( +-  0,43% )
+     1.387.911.376      L1-dcache-loads                                                         ( +-  0,01% )
+        10.784.093      L1-dcache-load-misses            #    0,78% of all L1-dcache accesses   ( +-  0,42% )
+
+          0,238825 +- 0,000308 seconds time elapsed  ( +-  0,13% )
+

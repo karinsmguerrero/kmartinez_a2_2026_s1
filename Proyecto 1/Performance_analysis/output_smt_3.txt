@@ -1,0 +1,150 @@
+
+ Performance counter stats for 'build/test_smt 3':
+
+     1.805.654.630      cpu-cycles                                                            
+               189      context-switches                                                      
+         4.395.282      cache-misses                                                          
+       252.029.563      stalled-cycles-frontend          #   13,96% frontend cycles idle      
+
+       0,429709273 seconds time elapsed
+
+       0,403660000 seconds user
+       0,030199000 seconds sys
+
+
+------------------------
+
+ Performance counter stats for 'build/test_smt 3':
+
+     1.798.650.458      cpu-cycles                                                            
+               188      context-switches                                                      
+         4.500.484      cache-misses                                                          
+       251.051.100      stalled-cycles-frontend          #   13,96% frontend cycles idle      
+
+       0,426911078 seconds time elapsed
+
+       0,402206000 seconds user
+       0,029087000 seconds sys
+
+
+------------------------
+
+ Performance counter stats for 'build/test_smt 3':
+
+     1.868.602.213      cpu-cycles                                                            
+               174      context-switches                                                      
+         4.488.409      cache-misses                                                          
+       271.936.190      stalled-cycles-frontend          #   14,55% frontend cycles idle      
+
+       0,437158746 seconds time elapsed
+
+       0,415603000 seconds user
+       0,031969000 seconds sys
+
+
+------------------------
+
+ Performance counter stats for 'build/test_smt 3':
+
+     1.841.344.912      cpu-cycles                                                            
+               187      context-switches                                                      
+         4.470.735      cache-misses                                                          
+       259.388.498      stalled-cycles-frontend          #   14,09% frontend cycles idle      
+
+       0,437334192 seconds time elapsed
+
+       0,421725000 seconds user
+       0,020034000 seconds sys
+
+
+------------------------
+
+ Performance counter stats for 'build/test_smt 3':
+
+     1.838.240.165      cpu-cycles                                                            
+               197      context-switches                                                      
+         4.656.990      cache-misses                                                          
+       252.880.303      stalled-cycles-frontend          #   13,76% frontend cycles idle      
+
+       0,436637185 seconds time elapsed
+
+       0,409213000 seconds user
+       0,031016000 seconds sys
+
+
+------------------------
+
+ Performance counter stats for 'build/test_smt 3':
+
+     1.850.214.949      cpu-cycles                                                            
+               187      context-switches                                                      
+         4.440.768      cache-misses                                                          
+       269.098.062      stalled-cycles-frontend          #   14,54% frontend cycles idle      
+
+       0,435715427 seconds time elapsed
+
+       0,414099000 seconds user
+       0,029147000 seconds sys
+
+
+------------------------
+
+ Performance counter stats for 'build/test_smt 3':
+
+     1.862.033.660      cpu-cycles                                                            
+               187      context-switches                                                      
+         4.700.900      cache-misses                                                          
+       269.764.592      stalled-cycles-frontend          #   14,49% frontend cycles idle      
+
+       0,436915233 seconds time elapsed
+
+       0,418170000 seconds user
+       0,027944000 seconds sys
+
+
+------------------------
+
+ Performance counter stats for 'build/test_smt 3':
+
+     1.951.315.280      cpu-cycles                                                            
+               203      context-switches                                                      
+         4.455.782      cache-misses                                                          
+       270.672.173      stalled-cycles-frontend          #   13,87% frontend cycles idle      
+
+       0,554969711 seconds time elapsed
+
+       0,439286000 seconds user
+       0,031091000 seconds sys
+
+
+------------------------
+
+ Performance counter stats for 'build/test_smt 3':
+
+     1.809.178.366      cpu-cycles                                                            
+               178      context-switches                                                      
+         4.315.140      cache-misses                                                          
+       243.867.818      stalled-cycles-frontend          #   13,48% frontend cycles idle      
+
+       0,425682783 seconds time elapsed
+
+       0,408792000 seconds user
+       0,025048000 seconds sys
+
+
+------------------------
+
+ Performance counter stats for 'build/test_smt 3':
+
+     1.814.955.143      cpu-cycles                                                            
+               179      context-switches                                                      
+         4.271.423      cache-misses                                                          
+       246.552.885      stalled-cycles-frontend          #   13,58% frontend cycles idle      
+
+       0,431862063 seconds time elapsed
+
+       0,411143000 seconds user
+       0,024066000 seconds sys
+
+
+------------------------
