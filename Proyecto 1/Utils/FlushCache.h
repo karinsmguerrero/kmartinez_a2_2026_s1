@@ -4,6 +4,7 @@
 #include <vector>
 #include <random>
 #include <cstdint>
+#include <iostream>
 
 void flush_cache();
 #endif

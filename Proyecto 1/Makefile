@@ -68,20 +68,42 @@ run-flush: $(SRC_FLUSH)
 	@./build/$(TARGET_FLUSH)
 
 # Run perf on test_smt.cpp 
-# make perf-smt NUM_THREADS=2
-perf-smt:
-	@echo "Running perf on test_smt.cpp..."
-	@sudo perf stat -e cpu-cycles,context-switches,cache-misses,stalled-cycles-frontend -r 5 -o Performance_analysis/output_smt_$(NUM_THREADS).txt -d build/$(TARGET_SMT) $(NUM_THREADS) 
-	@echo 3 | sudo tee /proc/sys/vm/drop_caches
-	@./build/$(TARGET_FLUSH)
+# make perf-smt NUM_THREADS=3 RUNS=10
+perf-smt: $(SRC_SMT) $(SRC_FLUSH)
+	@echo "Compiling SMT and flush binaries..."
+	@g++ -o build/$(TARGET_SMT) $(SRC_SMT) $(CXXFLAGS)
+	@g++ -o build/$(TARGET_FLUSH) $(SRC_FLUSH) $(CXXFLAGS)
+
+	@echo "Running multiple perf runs with cache flush..."
+	@rm -f Performance_analysis/output_smt_$(NUM_THREADS).txt
+
+	@for i in $$(seq 1 $(RUNS)); do \
+		echo "Run $$i"; \
+		./build/$(TARGET_FLUSH); \
+		echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null; \
+		sudo perf stat -e cpu-cycles,context-switches,cache-misses,stalled-cycles-frontend \
+		build/$(TARGET_SMT) $(NUM_THREADS) 2>> Performance_analysis/output_smt_$(NUM_THREADS).txt; \
+		echo "------------------------" >> Performance_analysis/output_smt_$(NUM_THREADS).txt; \
+	done
 
 # Run perf on test_cmp.cpp 
 # make perf-cmp NUM_THREADS=2
-perf-cmp:
-	@echo "Running perf on test_cmp.cpp..."
-	@sudo perf stat -r 200 -o Performance_analysis/output_cmp_$(NUM_THREADS).txt -d build/$(TARGET_CMP) $(NUM_THREADS) 
-	@echo 3 | sudo tee /proc/sys/vm/drop_caches
-	@./build/$(TARGET_FLUSH)
+perf-cmp: $(SRC_CMP) $(SRC_FLUSH)
+	@echo "Compiling CMP and flush binaries..."
+	@g++ -o build/$(TARGET_CMP) $(SRC_CMP) $(CXXFLAGS)
+	@g++ -o build/$(TARGET_FLUSH) $(SRC_FLUSH) $(CXXFLAGS)
+
+	@echo "Running multiple perf runs with cache flush..."
+	@rm -f Performance_analysis/output_cmp_$(NUM_THREADS).txt
+
+	@for i in $$(seq 1 $(RUNS)); do \
+		echo "Run $$i"; \
+		./build/$(TARGET_FLUSH); \
+		echo 3 | sudo tee /proc/sys/vm/drop_caches > /dev/null; \
+		sudo perf stat -e cpu-cycles,context-switches,cache-misses,stalled-cycles-frontend \
+		build/$(TARGET_CMP) $(NUM_THREADS) 2>> Performance_analysis/output_cmp_$(NUM_THREADS).txt; \
+		echo "------------------------" >> Performance_analysis/output_cmp_$(NUM_THREADS).txt; \
+	done
 
 # Limpieza de archivos generados
 clean:

@@ -32,6 +32,7 @@ ThreadResults *CoarseGrained::map(void *arg)
     bool done = false;
     bool is_stalled = false;
     int total_stalls = 0;
+    int remaining_stalled_cycles = 0;
 
     // Loop until ALL threads have finished their workloads
     while (1)
@@ -56,12 +57,17 @@ ThreadResults *CoarseGrained::map(void *arg)
         if (threads_completed == total_threads)
         {
             pthread_mutex_unlock(&pipeline_mutex);
-            break;
+            break; 
         }
 
         if (!done)
         {
-            if (is_stalled)
+            if (is_stalled && remaining_stalled_cycles > 0)
+            {
+                // This thread is currently stalled, decrement the remaining stall cycles
+                remaining_stalled_cycles--;
+            }
+            else if (is_stalled && remaining_stalled_cycles == 0)
             {
                 // Costly stall has completed, now we can proceed with work
                 is_stalled = false;
@@ -74,6 +80,7 @@ ThreadResults *CoarseGrained::map(void *arg)
                 {
                     is_stalled = true;
                     total_stalls++;
+                    remaining_stalled_cycles = get_random_number(20, 40, data->seed); 
 
                     // CGMT: Switch threads ON STALL, incurring a 1-cycle penalty
                     CoarseGrained::switch_to_next_thread();

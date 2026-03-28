@@ -1,0 +1,150 @@
+
+ Performance counter stats for 'build/test_smt 1':
+
+     1.936.547.698      cpu-cycles                                                            
+                67      context-switches                                                      
+         4.503.791      cache-misses                                                          
+       272.807.500      stalled-cycles-frontend          #   14,09% frontend cycles idle      
+
+       0,489924176 seconds time elapsed
+
+       0,435697000 seconds user
+       0,027980000 seconds sys
+
+
+------------------------
+
+ Performance counter stats for 'build/test_smt 1':
+
+     1.786.972.184      cpu-cycles                                                            
+                63      context-switches                                                      
+         4.067.154      cache-misses                                                          
+       259.436.612      stalled-cycles-frontend          #   14,52% frontend cycles idle      
+
+       0,437547886 seconds time elapsed
+
+       0,399343000 seconds user
+       0,027954000 seconds sys
+
+
+------------------------
+
+ Performance counter stats for 'build/test_smt 1':
+
+     1.871.675.001      cpu-cycles                                                            
+                68      context-switches                                                      
+         4.922.091      cache-misses                                                          
+       274.773.663      stalled-cycles-frontend          #   14,68% frontend cycles idle      
+
+       0,467765628 seconds time elapsed
+
+       0,412399000 seconds user
+       0,034451000 seconds sys
+
+
+------------------------
+
+ Performance counter stats for 'build/test_smt 1':
+
+     1.801.698.834      cpu-cycles                                                            
+                56      context-switches                                                      
+         4.028.212      cache-misses                                                          
+       242.620.202      stalled-cycles-frontend          #   13,47% frontend cycles idle      
+
+       0,449475267 seconds time elapsed
+
+       0,402243000 seconds user
+       0,029017000 seconds sys
+
+
+------------------------
+
+ Performance counter stats for 'build/test_smt 1':
+
+     1.851.072.644      cpu-cycles                                                            
+                51      context-switches                                                      
+         4.624.887      cache-misses                                                          
+       261.171.711      stalled-cycles-frontend          #   14,11% frontend cycles idle      
+
+       0,447317376 seconds time elapsed
+
+       0,407309000 seconds user
+       0,036847000 seconds sys
+
+
+------------------------
+
+ Performance counter stats for 'build/test_smt 1':
+
+     1.777.161.628      cpu-cycles                                                            
+                62      context-switches                                                      
+         4.206.088      cache-misses                                                          
+       254.898.192      stalled-cycles-frontend          #   14,34% frontend cycles idle      
+
+       0,430785506 seconds time elapsed
+
+       0,396287000 seconds user
+       0,031022000 seconds sys
+
+
+------------------------
+
+ Performance counter stats for 'build/test_smt 1':
+
+     1.805.265.468      cpu-cycles                                                            
+                57      context-switches                                                      
+         4.243.767      cache-misses                                                          
+       251.748.419      stalled-cycles-frontend          #   13,95% frontend cycles idle      
+
+       0,435986488 seconds time elapsed
+
+       0,402885000 seconds user
+       0,029917000 seconds sys
+
+
+------------------------
+
+ Performance counter stats for 'build/test_smt 1':
+
+     1.784.778.960      cpu-cycles                                                            
+                60      context-switches                                                      
+         3.908.841      cache-misses                                                          
+       252.692.068      stalled-cycles-frontend          #   14,16% frontend cycles idle      
+
+       0,453722882 seconds time elapsed
+
+       0,400112000 seconds user
+       0,029301000 seconds sys
+
+
+------------------------
+
+ Performance counter stats for 'build/test_smt 1':
+
+     1.818.624.796      cpu-cycles                                                            
+                55      context-switches                                                      
+         4.182.225      cache-misses                                                          
+       254.287.912      stalled-cycles-frontend          #   13,98% frontend cycles idle      
+
+       0,439090232 seconds time elapsed
+
+       0,398583000 seconds user
+       0,036961000 seconds sys
+
+
+------------------------
+
+ Performance counter stats for 'build/test_smt 1':
+
+     1.797.700.183      cpu-cycles                                                            
+                64      context-switches                                                      
+         4.219.896      cache-misses                                                          
+       259.907.796      stalled-cycles-frontend          #   14,46% frontend cycles idle      
+
+       0,436698251 seconds time elapsed
+
+       0,398177000 seconds user
+       0,033097000 seconds sys
+
+
+------------------------

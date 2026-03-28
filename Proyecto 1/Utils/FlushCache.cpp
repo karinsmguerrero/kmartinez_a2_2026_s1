@@ -25,6 +25,7 @@ void flush_cache() {
 
     // Evitar que el compilador elimine el código
     (void)sink;
+    printf("Cache flushed.\n");
 }
 
 int main() {
