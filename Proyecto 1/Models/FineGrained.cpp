@@ -17,6 +17,7 @@ ThreadResults *FineGrained::map(void *arg)
     bool done = false;
     bool is_stalled = false;
     int total_stalls = 0;
+    int remaining_stalled_cycles = 0;
 
     // Loop until ALL threads have finished their workloads
     while (1)
@@ -47,7 +48,12 @@ ThreadResults *FineGrained::map(void *arg)
 
         if (!done)
         {
-            if (is_stalled)
+            if (is_stalled && remaining_stalled_cycles > 0)
+            {
+                // This thread is currently stalled, decrement the remaining stall cycles
+                remaining_stalled_cycles--;
+            }
+            else if (is_stalled && remaining_stalled_cycles == 0)
             {
                 // Costly stall has completed, now we can proceed with work
                 is_stalled = false;
@@ -58,6 +64,8 @@ ThreadResults *FineGrained::map(void *arg)
                 int stall_probability = get_random_number(1, 100, data->seed);
                 if (stall_probability < 10) // models costly stall 10% of the time
                 {
+                    // Stall for 20-40 cycles to model a L3 cache-miss
+                    remaining_stalled_cycles = get_random_number(20, 40, data->seed); 
                     is_stalled = true;
                     total_stalls++;
                 }
